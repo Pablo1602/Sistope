@@ -4,20 +4,16 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h> 
+#define MAX 1024
 
+//http://www.aprendeaprogramar.com/mod/resource/view.php?id=630
 
-//Maximo Largo Linea 50
-//Formato archivo : sin salto de linea al final del archivo
-
-//Structura guarda registros
-typedef struct cosa{
-
-}reg;
 
 
 int main(int argc, char const *argv[]){
 
-  int cantidadImg, uBnarizar, uCasifica, mostrar;
+  //int cantidadImg, uBnarizar, uCasifica, mostrar;
   
   /*while ((c = getopt (argc, argv, "c:u:n:b:")) != -1){
 	    switch (c){
@@ -46,9 +42,52 @@ int main(int argc, char const *argv[]){
       	}
 	}
   exit(0);*/
-  int imagen;
-  imagen = open("imagen_1.bmp", O_RDONLY); 
+  int imagen, numbytes,i ;
+  char* buffer = (char*)malloc(sizeof(char)*MAX);
+  imagen = open("imagen_0.bmp", O_RDONLY);
   
+   /* Bucle de lectura/escritura */
+	
+	for(i=0; i <50 ; i++){
+		numbytes = read(imagen, buffer, sizeof(char));
+		printf("%s\n", buffer);
+		
+	}
+	
+	exit(0);
+	
+  /* while ((numbytes = read(imagen, buffer, sizeof(char))) > 0){
+    printf("%s", buffer);
+    //write(fd2, &buffer, numbytes);
+		
+  }
+   printf("\n");
+
+ 
+  Cierre de archivos */
+  close(imagen);
  
 	return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

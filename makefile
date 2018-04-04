@@ -1,3 +1,3 @@
 make compile: 
-	gcc Main.c -o Main 
-	./Main -c -u -n -b
+	gcc Main.c -o Main -Wall
+	./Main
