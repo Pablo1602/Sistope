@@ -9,9 +9,35 @@
 
 //http://www.aprendeaprogramar.com/mod/resource/view.php?id=630
 
-//https://poesiabinaria.net/2011/06/leyendo-archivos-de-imagen-en-formato-bmp-en-c/https://poesiabinaria.net/2011/06/leyendo-archivos-de-imagen-en-formato-bmp-en-c/
+//https://poesiabinaria.net/2011/06/leyendo-archivos-de-imagen-en-formato-bmp-en-c/
 
 //https://os.mbed.com/handbook/C-Data-Types    Conversion 
+
+typedef struct bmpFileHeader
+{
+  /* 2 bytes de identificación */
+  unsigned int size;        /* Tamaño del archivo */
+  unsigned short resv1;       /* Reservado */
+  unsigned short resv2;       /* Reservado */
+  unsigned int offset;      /* Offset hasta hasta los datos de imagen */
+} bmpFileHeader;
+
+typedef struct bmpInfoHeader
+{
+  unsigned int headersize;      /* Tamaño de la cabecera */
+  unsigned int width;               /* Ancho */
+  unsigned int height;          /* Alto */
+  unsigned short planes;                  /* Planos de color (Siempre 1) */
+  unsigned short bpp;             /* bits por pixel */
+  unsigned int compress;        /* compresión */
+  unsigned int imgsize;     /* tamaño de los datos de imagen */
+  unsigned int bpmx;                /* Resolución X en bits por metro */
+  unsigned int bpmy;                /* Resolución Y en bits por metro */
+  unsigned int colors;              /* colors used en la paleta */
+  unsigned int imxtcolors;      /* Colores importantes. 0 si son todos */
+} bmpInfoHeader;
+
+
 
 int main(int argc, char const *argv[]){
 
@@ -44,24 +70,28 @@ int main(int argc, char const *argv[]){
       	}
 	}
   exit(0);*/
+	
+	bmpFileHeader header;     /* cabecera */
+  unsigned char *imgdata;   /* datos de imagen */
+	char* bm = (char*)malloc(sizeof(char)*2);
   int imagen, numbytes;
-	unsigned int numero;
-  char* buffer = (char*)malloc(sizeof(char)*MAX);
+	
+	
+	
   imagen = open("imagen_0.bmp", O_RDONLY);
+	
+	
   
    /* Lectura BM */
-	numbytes = read(imagen, buffer, sizeof(char));
-	printf("%s\n", buffer);
-	numbytes = read(imagen, buffer, sizeof(char));
-	printf("%s\n", buffer);
+	numbytes = read(imagen, bm, sizeof(char)*2);
+	printf("%s\n", bm);
 	
+	//numbytes = read(imagen, buffer, sizeof(char));
+	//printf("%s\n", buffer);
 	
-	numbytes = read(imagen, numero, sizeof(unsigned int));
-	printf("%d\n", numero);
-	numbytes = read(imagen, numero, sizeof(unsigned int));
-	printf("%d\n", numero);
-	numbytes = read(imagen, numero, sizeof(unsigned int));
-	printf("%d\n", numero);
+	numbytes = read(imagen, header, sizeof(bmpFileHeader));
+	printf("%d\n", header.size);
+	
 	/*
 	numbytes = read(imagen, buffer, sizeof(uint32_t));
 		printf("%s\n", buffer);
