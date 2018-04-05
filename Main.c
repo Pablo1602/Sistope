@@ -9,7 +9,9 @@
 
 //http://www.aprendeaprogramar.com/mod/resource/view.php?id=630
 
+//https://poesiabinaria.net/2011/06/leyendo-archivos-de-imagen-en-formato-bmp-en-c/https://poesiabinaria.net/2011/06/leyendo-archivos-de-imagen-en-formato-bmp-en-c/
 
+//https://os.mbed.com/handbook/C-Data-Types    Conversion 
 
 int main(int argc, char const *argv[]){
 
@@ -42,18 +44,30 @@ int main(int argc, char const *argv[]){
       	}
 	}
   exit(0);*/
-  int imagen, numbytes,i ;
+  int imagen, numbytes;
+	unsigned int numero;
   char* buffer = (char*)malloc(sizeof(char)*MAX);
   imagen = open("imagen_0.bmp", O_RDONLY);
   
-   /* Bucle de lectura/escritura */
+   /* Lectura BM */
+	numbytes = read(imagen, buffer, sizeof(char));
+	printf("%s\n", buffer);
+	numbytes = read(imagen, buffer, sizeof(char));
+	printf("%s\n", buffer);
 	
-	for(i=0; i <50 ; i++){
-		numbytes = read(imagen, buffer, sizeof(char));
+	
+	numbytes = read(imagen, numero, sizeof(unsigned int));
+	printf("%d\n", numero);
+	numbytes = read(imagen, numero, sizeof(unsigned int));
+	printf("%d\n", numero);
+	numbytes = read(imagen, numero, sizeof(unsigned int));
+	printf("%d\n", numero);
+	/*
+	numbytes = read(imagen, buffer, sizeof(uint32_t));
 		printf("%s\n", buffer);
-		
-	}
-	
+	numbytes = read(imagen, buffer, sizeof(uint32_t));
+		printf("%s\n", buffer);
+	*/
 	exit(0);
 	
   /* while ((numbytes = read(imagen, buffer, sizeof(char))) > 0){
