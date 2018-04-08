@@ -41,6 +41,7 @@ typedef struct bmpInfoHeader
 
 void iniciador(bmpFileHeader* fh, bmpInfoHeader* ih);
 unsigned char* lectura(bmpFileHeader* fh, bmpInfoHeader* ih);
+void gris(unsigned char* imagen, bmpInfoHeader* info);
 
 int main(int argc, char const *argv[]){
 
@@ -79,17 +80,20 @@ int main(int argc, char const *argv[]){
 	bmpInfoHeader* ih =(bmpInfoHeader*)malloc(sizeof(bmpInfoHeader));
 	iniciador(fh, ih);
 	imgdata = lectura(fh, ih);
-	printf("%d\n", imgdata[0]);
+	gris(imgdata, ih);
+	//printf("%d\n", imgdata[0]);
 	exit(0);
  
 	return 0;
 }
 
+
+
 unsigned char* lectura(bmpFileHeader* fh, bmpInfoHeader* ih){
 	int imagen, numbytes;
 	char* bm = (char*)malloc(sizeof(char)*2);
 
-  	imagen = open("imagen_3.bmp", O_RDONLY);	
+  	imagen = open("imagen_4.bmp", O_RDONLY);	
   
    /* Lectura BM */
 	numbytes = read(imagen, bm, sizeof(char)*2);
@@ -177,6 +181,25 @@ void iniciador(bmpFileHeader* fh, bmpInfoHeader* ih){
 	ih->colors = (unsigned int*)malloc(sizeof(unsigned int));              /* colors used en la paleta */
 	ih->imxtcolors = (unsigned int*)malloc(sizeof(unsigned int));      /* Colores importantes. 0 si son todos */
 }
+
+void gris(unsigned char* imagen, bmpInfoHeader* info){
+	unsigned int x, y, r, g ,b, gris;
+	for (y=info->height[0]; y>0; y--){
+      for (x=0; x<info->width[0]; x++){
+      	b=(imagen[3*(x+y*info->width[0])]);
+      	g=(imagen[3*(x+y*info->width[0])+1]);
+      	r=(imagen[3*(x+y*info->width[0])+2]);
+      	gris = r*0.3+g*0.59+b*0.11;
+      	//printf("gris %d\n", gris);
+      	imagen[3*(x+y*info->width[0])] = gris;
+      	imagen[3*(x+y*info->width[0])+1] = gris;
+      	imagen[3*(x+y*info->width[0])+2] = gris;
+    	//printf("%d", imagen[3*(x+y*info->width[0])]);
+
+    	}
+    }
+}
+
 
 
 
