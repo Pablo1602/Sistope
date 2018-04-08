@@ -13,6 +13,12 @@
 
 //https://os.mbed.com/handbook/C-Data-Types    Conversion 
 
+
+
+
+//Funciones llamados a sistema http://sopa.dis.ulpgc.es/prog_c/FICHER.HTM
+
+
 typedef struct bmpFileHeader
 {
   /* 2 bytes de identificación */
@@ -94,71 +100,74 @@ int main(int argc, char const *argv[]){
   unsigned int* colors = (unsigned int*)malloc(sizeof(unsigned int));              /* colors used en la paleta */
   unsigned int* imxtcolors = (unsigned int*)malloc(sizeof(unsigned int));      /* Colores importantes. 0 si son todos */
   
-	
-	
-	
+
   imagen = open("imagen_1.bmp", O_RDONLY);
-	
-	
-  
    /* Lectura BM */
 	numbytes = read(imagen, bm, sizeof(char)*2);
 	printf("%s\n", bm);
-	
-	//numbytes = read(imagen, buffer, sizeof(char));
-	//printf("%s\n", buffer);
-	
+	//Tamaño
 	numbytes = read(imagen, size, sizeof(unsigned int));
 	printf("%d\n",size[0]);
-
-
+	//reservado1
 	numbytes = read(imagen, resv1, sizeof(unsigned short));
 	printf("%d\n",resv1[0] );
-	
+	//reservado2
 	numbytes = read(imagen, resv2, sizeof(unsigned short));
 	printf("%d\n",resv2[0] );
-
+	//inicio de los datos
 	numbytes = read(imagen, offset, sizeof(unsigned int));
 	printf("%d\n",offset[0]);
-
-
-
+	//Tamaño de la cabecera de bitmap
 	numbytes = read(imagen, headersize, sizeof(unsigned int));
 	printf("%d\n",headersize[0]);
-
+	//Ancho pixeles
 	numbytes = read(imagen, width, sizeof(unsigned int));
 	printf("%d\n",width[0]);
-
+	//Alto Pixeles
 	numbytes = read(imagen, height, sizeof(unsigned int));
 	printf("%d\n",height[0]);
-
+	//Numero de planos
 	numbytes = read(imagen, planes, sizeof(unsigned short));
 	printf("%d\n",planes[0] );
-
+	//Tamaño cada punto
 	numbytes = read(imagen, bpp, sizeof(unsigned short));
 	printf("%d\n",bpp[0] );
-
+	//Compreso?
 	numbytes = read(imagen, compress, sizeof(unsigned int));
 	printf("%d\n",compress[0]);
-
+	//tamaño imagen
 	numbytes = read(imagen, imgsize, sizeof(unsigned int));
-	printf("%d\n",imgsize[0]);
-
+	printf("tamaño imagen %d\n",imgsize[0]);
+	//resolucion Horizontal
 	numbytes = read(imagen, bpmx, sizeof(unsigned int));
 	printf("%d\n",bpmx[0]);
-
+	//Resolución vertical
 	numbytes = read(imagen, bpmy, sizeof(unsigned int));
 	printf("%d\n",bpmy[0]);
-
+	//Tamaño de tabla colores
 	numbytes = read(imagen, colors, sizeof(unsigned int));
 	printf("%d\n",colors[0]);
-
+	//comtador de colores importantes
 	numbytes = read(imagen, imxtcolors, sizeof(unsigned int));
 	printf("%d\n",imxtcolors[0]);
 
-	numbytes = read(imagen, imxtcolors, sizeof(unsigned int));
-	printf("%d\n",imxtcolors[0]);
 
+	imgdata = (unsigned char*)malloc(sizeof(char)*imgsize[0]);
+
+	numbytes = lseek(imagen,imgsize[0],SEEK_SET);
+
+	numbytes = read(imagen, imgdata, sizeof(unsigned char)*imgsize[0]);
+
+
+
+
+
+
+
+
+	//printf("aqui termina \n");
+	//int a = 3<1;
+	//printf("%d\n",a );
 
 
   close(imagen);
