@@ -79,11 +79,29 @@ int main(int argc, char const *argv[]){
 	unsigned char* imgdata;
 	bmpFileHeader* fh =(bmpFileHeader*)malloc(sizeof(bmpFileHeader));
 	bmpInfoHeader* ih =(bmpInfoHeader*)malloc(sizeof(bmpInfoHeader));
+	
 	iniciador(fh, ih);
 	imgdata = lectura(fh, ih);
 	gris(imgdata, ih);
 	escribir(ih, fh, imgdata);
 	//printf("%d\n", imgdata[0]);
+
+
+	printf("Tamaño: %d\n",fh->size[0]);
+	printf("resv1: %d\n",fh->resv1[0] );
+	printf("res2v: %d\n",fh->resv2[0] );
+	printf("Inicio de los datos: %d\n",fh->offset[0]);
+	printf("Tamaño de la cabecera de bitmap: %d\n",ih->headersize[0]);
+	printf("Ancho pixeles: %d\n",ih->width[0]);
+	printf("Alto Pixeles: %d\n",ih->height[0]);
+	printf("Numero de planos: %d\n",ih->planes[0]);
+	printf("Tamaño cada punto: %d\n",ih->bpp[0]);
+	printf("Compreso?: %d\n",ih->compress[0]);
+	printf("tamaño imagen: %d\n",ih->imgsize[0]);
+	printf("resolucion Horizontal: %d\n",ih->bpmx[0]);
+	printf("Resolución vertical: %d\n",ih->bpmy[0]);
+	printf("Tamaño de tabla colores: %d\n",ih->colors[0]);
+	printf("comtador de colores importantes: %d\n",ih->imxtcolors[0]);
 	exit(0);
  
 	return 0;
@@ -99,57 +117,23 @@ unsigned char* lectura(bmpFileHeader* fh, bmpInfoHeader* ih){
   
    /* Lectura BM */
 	numbytes = read(imagen, bm, sizeof(char)*2);
-	printf("%s\n", bm);
-	
-	//numbytes = read(imagen, buffer, sizeof(char));
-	//printf("%s\n", buffer);
-	
 	numbytes = read(imagen, fh->size, sizeof(unsigned int));
-	printf("Tamaño: %d\n",fh->size[0]);
-
 	numbytes = read(imagen, fh->resv1, sizeof(unsigned short));
-	printf("resv1: %d\n",fh->resv1[0] );
-	
 	numbytes = read(imagen, fh->resv2, sizeof(unsigned short));
-	printf("res2v: %d\n",fh->resv2[0] );
-
 	numbytes = read(imagen, fh->offset, sizeof(unsigned int));
-	printf("Inicio de los datos: %d\n",fh->offset[0]);
 
 
 	numbytes = read(imagen, ih->headersize, sizeof(unsigned int));
-	printf("Tamaño de la cabecera de bitmap: %d\n",ih->headersize[0]);
-
 	numbytes = read(imagen, ih->width, sizeof(unsigned int));
-	printf("Ancho pixeles: %d\n",ih->width[0]);
-
 	numbytes = read(imagen, ih->height, sizeof(unsigned int));
-	printf("Alto Pixeles: %d\n",ih->height[0]);
-
 	numbytes = read(imagen, ih->planes, sizeof(unsigned short));
-	printf("Numero de planos: %d\n",ih->planes[0]);
-
 	numbytes = read(imagen, ih->bpp, sizeof(unsigned short));
-	printf("Tamaño cada punto: %d\n",ih->bpp[0]);
-
 	numbytes = read(imagen, ih->compress, sizeof(unsigned int));
-	printf("Compreso?: %d\n",ih->compress[0]);
-
 	numbytes = read(imagen, ih->imgsize, sizeof(unsigned int));
-	printf("tamaño imagen: %d\n",ih->imgsize[0]);
-
 	numbytes = read(imagen, ih->bpmx, sizeof(unsigned int));
-	printf("resolucion Horizontal: %d\n",ih->bpmx[0]);
-
 	numbytes = read(imagen, ih->bpmy, sizeof(unsigned int));
-	printf("Resolución vertical: %d\n",ih->bpmy[0]);
-
 	numbytes = read(imagen, ih->colors, sizeof(unsigned int));
-	printf("Tamaño de tabla colores: %d\n",ih->colors[0]);
-
 	numbytes = read(imagen, ih->imxtcolors, sizeof(unsigned int));
-	printf("comtador de colores importantes: %d\n",ih->imxtcolors[0]);
-
 
 	unsigned char* imgdata = (unsigned char*)malloc(sizeof(unsigned char)*ih->imgsize[0]);   /* datos de imagen */
 	unsigned char* basura = (unsigned char*)malloc(sizeof(unsigned char));;
@@ -196,20 +180,40 @@ void gris(unsigned char* imagen, bmpInfoHeader* info){
       	imagen[3*(x+y*info->width[0])] = gris;
       	imagen[3*(x+y*info->width[0])+1] = gris;
       	imagen[3*(x+y*info->width[0])+2] = gris;
-    	//printf("%d", imagen[3*(x+y*info->width[0])]);
-
     	}
     }
+
+    
+      for (x=0; x<info->width[0]; x++){
+      	printf("%d",imagen[x]);
+      }
+      printf("\n");
+  	
 }
 
 void escribir(bmpInfoHeader* ih, bmpFileHeader* fh, unsigned char* imagen){
 	int escribir, numbytes;
 	char* bm = "BM";
 	escribir = open("salida.bmp", O_CREAT|O_WRONLY, S_IRWXU);
+	
 	numbytes = write(escribir, bm, sizeof(char)*2);
-	numbytes = write(escribir, fh, sizeof(sizeof(fh)));
-	numbytes = write(escribir, ih, sizeof(sizeof(ih)));
-	numbytes = write(escribir, imagen, sizeof(sizeof(imagen)));
+	numbytes = write(escribir, fh->size, sizeof(unsigned int));
+	numbytes = write(escribir, fh->resv1, sizeof(unsigned short));
+	numbytes = write(escribir, fh->resv2, sizeof(unsigned short));
+	numbytes = write(escribir, fh->offset, sizeof(unsigned int));
+	numbytes = write(escribir, ih->headersize, sizeof(unsigned int));
+	numbytes = write(escribir, ih->width, sizeof(unsigned int));
+	numbytes = write(escribir, ih->height, sizeof(unsigned int));
+	numbytes = write(escribir, ih->planes, sizeof(unsigned short));
+	numbytes = write(escribir, ih->bpp, sizeof(unsigned short));
+	numbytes = write(escribir, ih->compress, sizeof(unsigned int));
+	numbytes = write(escribir, ih->imgsize, sizeof(unsigned int));
+	numbytes = write(escribir, ih->bpmx, sizeof(unsigned int));
+	numbytes = write(escribir, ih->bpmy, sizeof(unsigned int));
+	numbytes = write(escribir, ih->colors, sizeof(unsigned int));
+	numbytes = write(escribir, ih->imxtcolors, sizeof(unsigned int));
+	numbytes = write(escribir, imagen, sizeof(ih->imgsize));
+
 	close(escribir);
 }
 
