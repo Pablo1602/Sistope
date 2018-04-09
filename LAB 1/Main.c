@@ -42,6 +42,7 @@ typedef struct bmpInfoHeader
 void iniciador(bmpFileHeader* fh, bmpInfoHeader* ih);
 unsigned char* lectura(bmpFileHeader* fh, bmpInfoHeader* ih);
 void gris(unsigned char* imagen, bmpInfoHeader* info);
+void escribir(bmpInfoHeader* ih, bmpFileHeader* fh, unsigned char* imagen);
 
 int main(int argc, char const *argv[]){
 
@@ -81,6 +82,7 @@ int main(int argc, char const *argv[]){
 	iniciador(fh, ih);
 	imgdata = lectura(fh, ih);
 	gris(imgdata, ih);
+	escribir(ih, fh, imgdata);
 	//printf("%d\n", imgdata[0]);
 	exit(0);
  
@@ -200,7 +202,16 @@ void gris(unsigned char* imagen, bmpInfoHeader* info){
     }
 }
 
-
+void escribir(bmpInfoHeader* ih, bmpFileHeader* fh, unsigned char* imagen){
+	int escribir, numbytes;
+	char* bm = "BM";
+	escribir = open("salida.bmp", O_CREAT|O_WRONLY, S_IRWXU);
+	numbytes = write(escribir, bm, sizeof(char)*2);
+	numbytes = write(escribir, fh, sizeof(sizeof(fh)));
+	numbytes = write(escribir, ih, sizeof(sizeof(ih)));
+	numbytes = write(escribir, imagen, sizeof(sizeof(imagen)));
+	close(escribir);
+}
 
 
 
