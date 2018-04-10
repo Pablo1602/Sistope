@@ -39,6 +39,8 @@ typedef struct bmpInfoHeader
   unsigned int* imxtcolors;      /* Colores importantes. 0 si son todos */
 } bmpInfoHeader;
 
+
+
 void iniciador(bmpFileHeader* fh, bmpInfoHeader* ih);
 unsigned char* lectura(bmpFileHeader* fh, bmpInfoHeader* ih);
 void gris(unsigned char* imagen, bmpInfoHeader* info);
@@ -86,7 +88,6 @@ int main(int argc, char const *argv[]){
 	escribir(ih, fh, imgdata);
 	//printf("%d\n", imgdata[0]);
 
-
 	printf("Tamaño: %d\n",fh->size[0]);
 	printf("resv1: %d\n",fh->resv1[0] );
 	printf("res2v: %d\n",fh->resv2[0] );
@@ -98,10 +99,10 @@ int main(int argc, char const *argv[]){
 	printf("Tamaño cada punto: %d\n",ih->bpp[0]);
 	printf("Compreso?: %d\n",ih->compress[0]);
 	printf("tamaño imagen: %d\n",ih->imgsize[0]);
-	printf("resolucion Horizontal: %d\n",ih->bpmx[0]);
+	printf("Resolucion Horizontal: %d\n",ih->bpmx[0]);
 	printf("Resolución vertical: %d\n",ih->bpmy[0]);
 	printf("Tamaño de tabla colores: %d\n",ih->colors[0]);
-	printf("comtador de colores importantes: %d\n",ih->imxtcolors[0]);
+	printf("Contador de colores importantes: %d\n",ih->imxtcolors[0]);
 	exit(0);
  
 	return 0;
@@ -110,10 +111,10 @@ int main(int argc, char const *argv[]){
 
 
 unsigned char* lectura(bmpFileHeader* fh, bmpInfoHeader* ih){
-	int imagen, numbytes;
+	int imagen, numbytes, x, y;
 	char* bm = (char*)malloc(sizeof(char)*2);
 
-  	imagen = open("imagen_4.bmp", O_RDONLY);	
+  	imagen = open("imagen_1.bmp", O_RDONLY);	
   
    /* Lectura BM */
 	numbytes = read(imagen, bm, sizeof(char)*2);
@@ -137,13 +138,18 @@ unsigned char* lectura(bmpFileHeader* fh, bmpInfoHeader* ih){
 
 	unsigned char* imgdata = (unsigned char*)malloc(sizeof(unsigned char)*ih->imgsize[0]);   /* datos de imagen */
 	unsigned char* basura = (unsigned char*)malloc(sizeof(unsigned char));;
-	int i, pos;
+	/*int i, pos;
 	pos = fh->offset[0] - 53;
 	for(i=1; i< pos;i++){
 		numbytes = read(imagen, basura, sizeof(unsigned char));
+	}*/
+	lseek(imagen,fh->offset[0],SEEK_SET);
+	//numbytes = read(imagen, imgdata, sizeof(unsigned char)*ih->imgsize[0]);	
+	for (int i = 0; i < ih->imgsize[0]; ++i){
+		read(imagen, basura, sizeof(unsigned char));
+		imgdata[i] = basura[0];
+		//printf("%d ", basura[0]);
 	}
-	numbytes = read(imagen, imgdata, sizeof(unsigned char)*ih->imgsize[0]);	
-
   	close(imagen);
   	return imgdata;
 }
@@ -168,31 +174,29 @@ void iniciador(bmpFileHeader* fh, bmpInfoHeader* ih){
 	ih->imxtcolors = (unsigned int*)malloc(sizeof(unsigned int));      /* Colores importantes. 0 si son todos */
 }
 
-void gris(unsigned char* imagen, bmpInfoHeader* info){
+void gris(unsigned char* imagen, bmpInfoHeader* ih){
 	unsigned int x, y, r, g ,b, gris;
-	for (y=info->height[0]; y>0; y--){
-      for (x=0; x<info->width[0]; x++){
-      	b=(imagen[3*(x+y*info->width[0])]);
-      	g=(imagen[3*(x+y*info->width[0])+1]);
-      	r=(imagen[3*(x+y*info->width[0])+2]);
+	for (y=ih->height[0]; y>0; y--){
+      for (x=0; x<ih->width[0]; x++){
+      	b=(imagen[3*(x+y*ih->width[0])]);
+      	g=(imagen[3*(x+y*ih->width[0])+1]);
+      	r=(imagen[3*(x+y*ih->width[0])+2]);
+      	//printf("(%d.%d.%d) ", b,g,r);
       	gris = r*0.3+g*0.59+b*0.11;
       	//printf("gris %d\n", gris);
-      	imagen[3*(x+y*info->width[0])] = gris;
-      	imagen[3*(x+y*info->width[0])+1] = gris;
-      	imagen[3*(x+y*info->width[0])+2] = gris;
+      	imagen[3*(x+y*ih->width[0])] = gris;
+      	imagen[3*(x+y*ih->width[0])+1] = gris;
+      	imagen[3*(x+y*ih->width[0])+2] = gris;
+      	//printf("(%d.%d.%d)", imagen[3*(x+y*ih->width[0])], imagen[3*(x+y*ih->width[0])+1], imagen[3*(x+y*ih->width[0])+2]);
     	}
+    	//printf("\n");
     }
-
-    
-      for (x=0; x<info->width[0]; x++){
-      	printf("%d",imagen[x]);
-      }
-      printf("\n");
   	
 }
 
 void escribir(bmpInfoHeader* ih, bmpFileHeader* fh, unsigned char* imagen){
-	int escribir, numbytes;
+	int escribir, numbytes, x, y;
+	unsigned char* basura = (unsigned char*)malloc(sizeof(unsigned char));;
 	char* bm = "BM";
 	escribir = open("salida.bmp", O_CREAT|O_WRONLY, S_IRWXU);
 	
@@ -212,8 +216,21 @@ void escribir(bmpInfoHeader* ih, bmpFileHeader* fh, unsigned char* imagen){
 	numbytes = write(escribir, ih->bpmy, sizeof(unsigned int));
 	numbytes = write(escribir, ih->colors, sizeof(unsigned int));
 	numbytes = write(escribir, ih->imxtcolors, sizeof(unsigned int));
+	
+	/*
+	int i, pos;
+	pos = fh->offset[0] - 53;
+	for(i=1; i< pos;i++){
+		numbytes = write(escribir, basura, sizeof(unsigned char));
+	}*/
+	lseek(escribir,fh->offset[0],SEEK_SET);
 	numbytes = write(escribir, imagen, sizeof(ih->imgsize));
-
+	for (int i = 0; i < ih->imgsize[0]; ++i){
+		basura[0] = imagen[i];
+		//printf("%d ", basura[0]);
+		write(escribir, basura, sizeof(unsigned char));
+	}
+	
 	close(escribir);
 }
 
