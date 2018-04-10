@@ -45,6 +45,8 @@ void iniciador(bmpFileHeader* fh, bmpInfoHeader* ih);
 unsigned char* lectura(bmpFileHeader* fh, bmpInfoHeader* ih);
 void gris(unsigned char* imagen, bmpInfoHeader* info);
 void escribir(bmpInfoHeader* ih, bmpFileHeader* fh, unsigned char* imagen);
+void binarizacion(int umbral, unsigned char* imagen, bmpInfoHeader* ih);
+void clasificacion(int umbral, unsigned char* imagen, bmpInfoHeader* ih);
 
 int main(int argc, char const *argv[]){
 
@@ -86,6 +88,8 @@ int main(int argc, char const *argv[]){
 	imgdata = lectura(fh, ih);
 	gris(imgdata, ih);
 	escribir(ih, fh, imgdata);
+	binarizacion(150, imgdata, ih);
+	clasificacion(50, imgdata, ih);
 	//printf("%d\n", imgdata[0]);
 
 	printf("Tamaño: %d\n",fh->size[0]);
@@ -108,13 +112,11 @@ int main(int argc, char const *argv[]){
 	return 0;
 }
 
-
-
 unsigned char* lectura(bmpFileHeader* fh, bmpInfoHeader* ih){
 	int imagen, numbytes, x, y;
 	char* bm = (char*)malloc(sizeof(char)*2);
 
-  	imagen = open("imagen_1.bmp", O_RDONLY);	
+  	imagen = open("imagen_4.bmp", O_RDONLY);	
   
    /* Lectura BM */
 	numbytes = read(imagen, bm, sizeof(char)*2);
@@ -176,7 +178,7 @@ void iniciador(bmpFileHeader* fh, bmpInfoHeader* ih){
 
 void gris(unsigned char* imagen, bmpInfoHeader* ih){
 	unsigned int x, y, r, g ,b, gris;
-	for (y=ih->height[0]; y>0; y--){
+	/*for (y=ih->height[0]; y>0; y--){
       for (x=0; x<ih->width[0]; x++){
       	b=(imagen[3*(x+y*ih->width[0])]);
       	g=(imagen[3*(x+y*ih->width[0])+1]);
@@ -190,8 +192,50 @@ void gris(unsigned char* imagen, bmpInfoHeader* ih){
       	//printf("(%d.%d.%d)", imagen[3*(x+y*ih->width[0])], imagen[3*(x+y*ih->width[0])+1], imagen[3*(x+y*ih->width[0])+2]);
     	}
     	//printf("\n");
-    }
+    }*/
+    for (int i = 0; i < ih->imgsize[0]; i+=3){
+      	b=(imagen[i]);
+      	g=(imagen[i+1]);
+      	r=(imagen[i+2]);
+      	//printf("(%d.%d.%d) ", b,g,r);
+      	gris = r*0.3+g*0.59+b*0.11;
+      	//printf("gris %d\n", gris);
+      	imagen[i] = gris;
+      	imagen[i+1] = gris;
+      	imagen[i+2] = gris;
+	}
   	
+}
+
+void binarizacion(int umbral, unsigned char* imagen, bmpInfoHeader* ih){
+	for (int i = 0; i < ih->imgsize[0]; ++i){
+		if(imagen[i] > umbral)
+			imagen[i] = 1;
+		else{
+			imagen[i] = 0;
+		}
+	}
+}
+
+void clasificacion(int umbral, unsigned char* imagen, bmpInfoHeader* ih){
+	float blanco = 0, negro = 0, porcentaje = 0;
+	for (int i = 0; i < ih->imgsize[0]; ++i){
+		if(imagen[i] == 1){
+			negro++;
+		}
+		else if(imagen[i] == 0){
+			blanco++;
+		}
+	}
+	porcentaje = (negro / (blanco + negro))*100;
+
+	if(porcentaje >= umbral){
+		printf("Imagen es nearly black\n");
+	}
+	else{
+		printf("Imagen no es nearly black\n");
+	}
+	printf("\n");
 }
 
 void escribir(bmpInfoHeader* ih, bmpFileHeader* fh, unsigned char* imagen){
