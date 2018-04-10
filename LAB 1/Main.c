@@ -89,7 +89,7 @@ int main(int argc, char const *argv[]){
 	gris(imgdata, ih);
 	escribir(ih, fh, imgdata);
 	binarizacion(150, imgdata, ih);
-	clasificacion(50, imgdata, ih);
+	clasificacion(70, imgdata, ih);
 	//printf("%d\n", imgdata[0]);
 
 	printf("Tamaño: %d\n",fh->size[0]);
@@ -116,7 +116,7 @@ unsigned char* lectura(bmpFileHeader* fh, bmpInfoHeader* ih){
 	int imagen, numbytes, x, y;
 	char* bm = (char*)malloc(sizeof(char)*2);
 
-  	imagen = open("imagen_4.bmp", O_RDONLY);	
+  	imagen = open("imagen_3.bmp", O_RDONLY);	
   
    /* Lectura BM */
 	numbytes = read(imagen, bm, sizeof(char)*2);
@@ -193,7 +193,7 @@ void gris(unsigned char* imagen, bmpInfoHeader* ih){
     	}
     	//printf("\n");
     }*/
-    for (int i = 0; i < ih->imgsize[0]; i+=3){
+    for (int i = 0; i < ih->imgsize[0]; i+=4){
       	b=(imagen[i]);
       	g=(imagen[i+1]);
       	r=(imagen[i+2]);
@@ -221,10 +221,10 @@ void clasificacion(int umbral, unsigned char* imagen, bmpInfoHeader* ih){
 	float blanco = 0, negro = 0, porcentaje = 0;
 	for (int i = 0; i < ih->imgsize[0]; ++i){
 		if(imagen[i] == 1){
-			negro++;
+			blanco++;
 		}
 		else if(imagen[i] == 0){
-			blanco++;
+			negro++;
 		}
 	}
 	porcentaje = (negro / (blanco + negro))*100;
