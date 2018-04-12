@@ -1,4 +1,4 @@
- #include <string.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -68,7 +68,7 @@ int main(int argc, char *const argv[]){
 				mostrar = 1;
 				break;
 			case '?':
-				if (optopt == 'c' || optopt == 'u' || optopt == 'n' || optopt == 'b')
+				if (optopt == 'c' || optopt == 'u' || optopt == 'n')
 				  fprintf (stderr, "Opcion -%c requiere un argumento.\n", optopt);
 				else if (isprint (optopt))
 				  fprintf (stderr, "Opcion desconocida `-%c'.\n", optopt);
@@ -79,9 +79,7 @@ int main(int argc, char *const argv[]){
 				abort ();
 		}
 	}
-	
 	datapath(cantidadImg, uBnarizar, uCasifica, mostrar);
- 
 	return 0;
 }
 
@@ -102,7 +100,6 @@ void datapath(int cantidadImg, int uBinarizacion, int uClasificacion, int mostra
 		//Inicio datapath
 		sprintf(nImagen, "imagen_%d.bmp",i);
 		imgdata = lectura(nImagen, fh, ih);
-		printf("lee imagen %d\n",i);
 		//A gris
 		gris(imgdata, ih);
 		//Binarizar
@@ -184,6 +181,7 @@ void gris(unsigned char* imagen, bmpInfoHeader* ih){
       	imagen[i] = gris;
       	imagen[i+1] = gris;
       	imagen[i+2] = gris;
+      	imagen[i+3] = 255;
 	}
   	
 }
@@ -191,19 +189,19 @@ void gris(unsigned char* imagen, bmpInfoHeader* ih){
 void binarizacion(int umbral, unsigned char* imagen, bmpInfoHeader* ih){
 	for (int i = 0; i < ih->imgsize[0]; i+=4){
 		if(imagen[i] > umbral)
-			imagen[i] = 0;
-		else{
 			imagen[i] = 255;
+		else{
+			imagen[i] = 0;
 		}
 		if(imagen[i+1] > umbral)
-			imagen[i+1] = 0;
-		else{
 			imagen[i+1] = 255;
+		else{
+			imagen[i+1] = 0;
 		}
 		if(imagen[i+2] > umbral)
-			imagen[i+2] = 0;
-		else{
 			imagen[i+2] = 255;
+		else{
+			imagen[i+2] = 0;
 		}
 	}
 }
@@ -211,16 +209,28 @@ void binarizacion(int umbral, unsigned char* imagen, bmpInfoHeader* ih){
 
 void clasificacion(int umbral, unsigned char* imagen, bmpInfoHeader* ih, int mostrar){
 	float blanco = 0, negro = 0, porcentaje = 0;
-	for (int i = 0; i < ih->imgsize[0]; ++i){
-		if(imagen[i] == 1){
+	for (int i = 0; i < ih->imgsize[0]; i+=4){
+		if(imagen[i] == 255){
 			blanco++;
 		}
 		else if(imagen[i] == 0){
 			negro++;
 		}
+		if(imagen[i+1] == 255){
+			blanco++;
+		}
+		else if(imagen[i+1] == 0){
+			negro++;
+		}
+		if(imagen[i+2] == 255){
+			blanco++;
+		}
+		else if(imagen[i+2] == 0){
+			negro++;
+		}
 	}
 	porcentaje = (negro / (blanco + negro))*100;
-
+	//printf("P=%f, N=%f, B=%f",porcentaje, negro, blanco);
 	if(porcentaje >= umbral){
 		if (mostrar == 1){
 			printf(" 	Yes		|\n");
@@ -262,7 +272,7 @@ void escribir(bmpInfoHeader* ih, bmpFileHeader* fh, unsigned char* imagen, int n
 	numbytes = write(escribir, ih->imxtcolors, sizeof(unsigned int));
 
 	lseek(escribir,fh->offset[0],SEEK_SET);
-	numbytes = write(escribir, imagen, sizeof(ih->imgsize));
+	//numbytes = write(escribir, imagen, sizeof(ih->imgsize));
 	for (int i = 0; i < ih->imgsize[0]; ++i){
 		basura[0] = imagen[i];
 		write(escribir, basura, sizeof(unsigned char));
