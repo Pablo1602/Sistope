@@ -2,9 +2,10 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <stdlib.h>
 #include <stdio.h>
-#include <unistd.h> 
+#include <stdlib.h>
+#include <unistd.h>
+#include <ctype.h>
 #define MAX 1024
 
 //http://www.aprendeaprogramar.com/mod/resource/view.php?id=630
@@ -42,17 +43,17 @@ typedef struct bmpInfoHeader
 
 void datapath(int cantidadImg, int uBinarizacion, int uClasificacion, int mostrar);
 void iniciador(bmpFileHeader* fh, bmpInfoHeader* ih);
-unsigned char* lectura(bmpFileHeader* fh, bmpInfoHeader* ih);
+unsigned char* lectura(char* nombre,bmpFileHeader* fh, bmpInfoHeader* ih);
 void gris(unsigned char* imagen, bmpInfoHeader* info);
-void escribir(bmpInfoHeader* ih, bmpFileHeader* fh, unsigned char* imagen);
+void escribir(bmpInfoHeader* ih, bmpFileHeader* fh, unsigned char* imagen, int nImagen);
 void binarizacion(int umbral, unsigned char* imagen, bmpInfoHeader* ih);
-void clasificacion(int umbral, unsigned char* imagen, bmpInfoHeader* ih);
+void clasificacion(int umbral, unsigned char* imagen, bmpInfoHeader* ih, int mostrar);
 
-int main(int argc, char const *argv[]){
+int main(int argc, char *const argv[]){
 
   int cantidadImg, uBnarizar, uCasifica, mostrar;
-  
-  /*while ((c = getopt (argc, argv, "c:u:n:b:")) != -1){
+  int c;
+  while ((c = getopt (argc, argv, "c:u:n:b")) != -1){
 		switch (c){
 			case 'c':
 				sscanf(optarg, "%d", &cantidadImg);
@@ -78,7 +79,6 @@ int main(int argc, char const *argv[]){
 				abort ();
 		}
 	}
-  exit(0);*/
 	
 	datapath(cantidadImg, uBnarizar, uCasifica, mostrar);
  
@@ -93,41 +93,29 @@ void datapath(int cantidadImg, int uBinarizacion, int uClasificacion, int mostra
 	bmpFileHeader* fh =(bmpFileHeader*)malloc(sizeof(bmpFileHeader));
 	bmpInfoHeader* ih =(bmpInfoHeader*)malloc(sizeof(bmpInfoHeader));
 	char* nImagen = (char*)malloc(sizeof(char)*10);
-	
+	char* numero = (char*)malloc(sizeof(char)*5);
 	iniciador(fh, ih);
-
-	for (i = 1; i <= cantidadImg; ++i){
-		strcpy(nImagen,"nombre_");
-		strcat(nImagen, (char)i );
-		// Lectura de imagen
-		imgdata = lectura(nImagen, fh, ih);
-		
+	if (mostrar == 1){
+		printf("| 	Numero Imagen 	| 	Nearly black 	|\n-------------------------------------------------\n");
 	}
+	for (i = 1; i <= cantidadImg; ++i){
+		//Inicio datapath
+		sprintf(nImagen, "imagen_%d.bmp",i);
+		imgdata = lectura(nImagen, fh, ih);
+		printf("lee imagen %d\n",i);
+		//A gris
+		gris(imgdata, ih);
+		//Binarizar
+		binarizacion(uBinarizacion, imgdata, ih);
+		//CLASIFICA
+		if (mostrar == 1){
+		printf("| 	%s	|",nImagen);
+		}
+		clasificacion(uClasificacion, imgdata, ih, mostrar);
+		escribir(ih, fh, imgdata, i);
 
-	//Inicio datapath
-
-
-	gris(imgdata, ih);
-	escribir(ih, fh, imgdata);
-	binarizacion(150, imgdata, ih);
-	clasificacion(70, imgdata, ih);
-
-	// printf("Tamaño: %d\n",fh->size[0]);
-	// printf("resv1: %d\n",fh->resv1[0] );
-	// printf("res2v: %d\n",fh->resv2[0] );
-	// printf("Inicio de los datos: %d\n",fh->offset[0]);
-	// printf("Tamaño de la cabecera de bitmap: %d\n",ih->headersize[0]);
-	// printf("Ancho pixeles: %d\n",ih->width[0]);
-	// printf("Alto Pixeles: %d\n",ih->height[0]);
-	// printf("Numero de planos: %d\n",ih->planes[0]);
-	// printf("Tamaño cada punto: %d\n",ih->bpp[0]);
-	// printf("Compreso?: %d\n",ih->compress[0]);
-	// printf("tamaño imagen: %d\n",ih->imgsize[0]);
-	// printf("Resolucion Horizontal: %d\n",ih->bpmx[0]);
-	// printf("Resolución vertical: %d\n",ih->bpmy[0]);
-	// printf("Tamaño de tabla colores: %d\n",ih->colors[0]);
-	// printf("Contador de colores importantes: %d\n",ih->imxtcolors[0]);
-	// exit(0);
+	}
+	
 }
 
 unsigned char* lectura(char* nombre,bmpFileHeader* fh, bmpInfoHeader* ih){
@@ -192,9 +180,7 @@ void gris(unsigned char* imagen, bmpInfoHeader* ih){
       	b=(imagen[i]);
       	g=(imagen[i+1]);
       	r=(imagen[i+2]);
-      	//printf("(%d.%d.%d) ", b,g,r);
       	gris = r*0.3+g*0.59+b*0.11;
-      	//printf("gris %d\n", gris);
       	imagen[i] = gris;
       	imagen[i+1] = gris;
       	imagen[i+2] = gris;
@@ -203,16 +189,27 @@ void gris(unsigned char* imagen, bmpInfoHeader* ih){
 }
 
 void binarizacion(int umbral, unsigned char* imagen, bmpInfoHeader* ih){
-	for (int i = 0; i < ih->imgsize[0]; ++i){
+	for (int i = 0; i < ih->imgsize[0]; i+=4){
 		if(imagen[i] > umbral)
-			imagen[i] = 1;
-		else{
 			imagen[i] = 0;
+		else{
+			imagen[i] = 255;
+		}
+		if(imagen[i+1] > umbral)
+			imagen[i+1] = 0;
+		else{
+			imagen[i+1] = 255;
+		}
+		if(imagen[i+2] > umbral)
+			imagen[i+2] = 0;
+		else{
+			imagen[i+2] = 255;
 		}
 	}
 }
 
-void clasificacion(int umbral, unsigned char* imagen, bmpInfoHeader* ih){
+
+void clasificacion(int umbral, unsigned char* imagen, bmpInfoHeader* ih, int mostrar){
 	float blanco = 0, negro = 0, porcentaje = 0;
 	for (int i = 0; i < ih->imgsize[0]; ++i){
 		if(imagen[i] == 1){
@@ -225,20 +222,27 @@ void clasificacion(int umbral, unsigned char* imagen, bmpInfoHeader* ih){
 	porcentaje = (negro / (blanco + negro))*100;
 
 	if(porcentaje >= umbral){
-		printf("Imagen es nearly black\n");
+		if (mostrar == 1){
+			printf(" 	Yes		|\n");
+		}
 	}
 	else{
-		printf("Imagen no es nearly black\n");
+		if (mostrar == 1){
+			printf(" 	No		|\n");
+		}
 	}
-	printf("\n");
+	
 }
 
 
-void escribir(bmpInfoHeader* ih, bmpFileHeader* fh, unsigned char* imagen){
+void escribir(bmpInfoHeader* ih, bmpFileHeader* fh, unsigned char* imagen, int nImagen){
 	int escribir, numbytes, x, y;
 	unsigned char* basura = (unsigned char*)malloc(sizeof(unsigned char));;
 	char* bm = "BM";
-	escribir = open("salida.bmp", O_CREAT|O_WRONLY, S_IRWXU);
+	char* nSalida = (char*)malloc(sizeof(char)*20);
+	sprintf(nSalida, "salida_%d.bmp",nImagen);
+
+	escribir = open(nSalida, O_CREAT|O_WRONLY, S_IRWXU);
 	
 	numbytes = write(escribir, bm, sizeof(char)*2);
 	numbytes = write(escribir, fh->size, sizeof(unsigned int));
