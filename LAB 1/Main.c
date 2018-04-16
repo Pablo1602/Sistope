@@ -34,3 +34,4 @@ int main(int argc, char *const argv[]){
 	datapath(cantidadImg, uBnarizar, uCasifica, mostrar);
 	return 0;
 }
+
