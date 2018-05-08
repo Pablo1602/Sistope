@@ -56,7 +56,6 @@ int main(int argc, char *const argv[]){
 			printf("soy padre\n");
 			break;
 	}
-	//datapath(cantidadImg, uBnarizar, uCasifica, mostrar);
 	return 0;
 }
 
