@@ -60,7 +60,7 @@ unsigned char* lecturaPipe(int pipe ,bmpFileHeader* fh, bmpInfoHeader* ih){
 	numbytes = read(pipe, ih->imxtcolors, sizeof(unsigned int));
 
 	unsigned char* imgdata = (unsigned char*)malloc(sizeof(unsigned char)*ih->imgsize[0]);   
-	unsigned char* basura = (unsigned char*)malloc(sizeof(unsigned char));;
+	unsigned char* basura = (unsigned char*)malloc(sizeof(unsigned char));
 	for (int i = 0; i < ih->imgsize[0]; ++i){
 		read(pipe, basura, sizeof(unsigned char));
 		imgdata[i] = basura[0];

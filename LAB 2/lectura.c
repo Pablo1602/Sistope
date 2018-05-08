@@ -9,16 +9,14 @@ int main(int argc, char const *argv[])
 	bmpInfoHeader* ih =(bmpInfoHeader*)malloc(sizeof(bmpInfoHeader));
 	int status,p[2];
 	iniciador(fh, ih);
-	imgdata = lecturaPipe(0, nImagen,fh,ih);
-	gris(imgdata,ih);
-
+	imgdata = lectura(nImagen,fh,ih);
 	pid_t pid;
 	pipe(p);
 	switch(pid = fork()){
 		case 0:
 			close(p[1]);
 			dup2(fd[0],STDIN_FILENO);
-			execValor = execvp("./binarizacion",argexec);
+			execValor = execvp("./convagris",argexec);
 			printf("Error en exec\n");
 			break;
 		case -1:

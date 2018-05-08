@@ -3,15 +3,15 @@
 
 int main(int argc, char *const argv[]){
 
-  //int cantidadImg, uBnarizar, uCasifica, mostrar;
+  
 	char* mostrar = (char*)malloc(sizeof(char)*10);
 	strcpy(mostrar, "0");
 	char*  cantidadImg = (char*)malloc(sizeof(char)*10);
 	char* uBnarizar = (char*)malloc(sizeof(char)*10);
 	char* uCasifica = (char*)malloc(sizeof(char)*10);
-  int c;
-  int execValor;
-  while ((c = getopt (argc, argv, "c:u:n:b")) != -1){
+  	int c;
+  	int execValor;
+  	while ((c = getopt (argc, argv, "c:u:n:b")) != -1){
 		switch (c){
 			case 'c':
 				sscanf(optarg, "%s", cantidadImg);
@@ -38,24 +38,39 @@ int main(int argc, char *const argv[]){
 		}
 	}
 
-	char* argexec[] = {"./Datapath",cantidadImg, uBnarizar, uCasifica, mostrar, (char*)NULL};
-
 	pid_t pid;
-	int status;
-	switch(pid = fork()){
-		case 0:
-			printf("Soy Hijo\n");
-			execValor = execvp(argexec[0],argexec);
-			printf("Error en ejecucion de programa\n");
-			break;
-		case -1:
-			printf("error en fork\n");
-		 	break;
-		default:
-			waitpid(pid,&status,0);
-			printf("soy padre\n");
-			break;
+	int status,i;
+
+	int cantImg  = atoi(argv[1]);
+	char** argexec = (char**)malloc(sizeof(char*)*5);
+	for (i = 0; i < 7; ++i){
+		argexec[i]= (char*)malloc(sizeof(char)*15);
 	}
+
+	for (i = 0; i < cantImg; ++i)
+	{
+		sprintf(argexec[0], "%s",cantidadImg);
+		sprintf(argexec[1], "%s",uBnarizar);
+		sprintf(argexec[2], "%s",uCasifica);
+		sprintf(argexec[3], "%s",mostrar);
+		sprintf(argexec[4], "%d",i);
+		argexec[5] = (char*)NULL;
+
+		switch(pid = fork()){
+			case 0:
+				printf("Soy Hijo\n");
+				execValor = execvp("./lectura",argexec);
+				printf("Error en exec\n");
+				break;
+			case -1:
+				printf("Error en fork en imagen %d\n",i);
+			 	exit(0);
+			default:
+				break;
+		}
+	}
+	waitpid(pid,&status,0);
+
 	return 0;
 }
 
