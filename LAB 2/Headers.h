@@ -36,7 +36,8 @@ typedef struct bmpInfoHeader
   unsigned int* imxtcolors;      
 } bmpInfoHeader;
 
-
+unsigned char* lecturaPipe(int pipe ,bmpFileHeader* fh, bmpInfoHeader* ih);
+void escribirPipe(int pipe,bmpInfoHeader* ih, bmpFileHeader* fh, unsigned char* imagen);
 void datapath(int cantidadImg, int uBinarizacion, int uClasificacion, int mostrar);
 void iniciador(bmpFileHeader* fh, bmpInfoHeader* ih);
 unsigned char* lectura(char* nombre,bmpFileHeader* fh, bmpInfoHeader* ih);

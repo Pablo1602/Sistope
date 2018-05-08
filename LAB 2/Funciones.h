@@ -3,11 +3,9 @@
 #include "Headers.h"
 
 
-
 // Funcion: Se encarga de la ejecucion del "datapath" completo, llamando a las demas imagenes para que realizen su función
 // Entrada: cantidad de imagenes, umbral de binarizacion, umbral de clasificacion y instruccion si se debe moistrar resultado por pantalla o no
 // Salida: Ejecucción del Programa
-
 void datapath(int cantidadImg, int uBinarizacion, int uClasificacion, int mostrar){
 	int i;
 	unsigned char* imgdata;
@@ -33,10 +31,72 @@ void datapath(int cantidadImg, int uBinarizacion, int uClasificacion, int mostra
 		}
 		clasificacion(uClasificacion, imgdata, ih, mostrar);
 		escribir(ih, fh, imgdata, i);
-
 	}
-	
 }
+
+
+
+
+
+unsigned char* lecturaPipe(int pipe ,bmpFileHeader* fh, bmpInfoHeader* ih){
+	int imagen, numbytes, x, y;
+	char* bm = (char*)malloc(sizeof(char)*2);
+
+	numbytes = read(pipe, bm, sizeof(char)*2);
+	numbytes = read(pipe, fh->size, sizeof(unsigned int));
+	numbytes = read(pipe, fh->resv1, sizeof(unsigned short));
+	numbytes = read(pipe, fh->resv2, sizeof(unsigned short));
+	numbytes = read(pipe, fh->offset, sizeof(unsigned int));
+	numbytes = read(pipe, ih->headersize, sizeof(unsigned int));
+	numbytes = read(pipe, ih->width, sizeof(unsigned int));
+	numbytes = read(pipe, ih->height, sizeof(unsigned int));
+	numbytes = read(pipe, ih->planes, sizeof(unsigned short));
+	numbytes = read(pipe, ih->bpp, sizeof(unsigned short));
+	numbytes = read(pipe, ih->compress, sizeof(unsigned int));
+	numbytes = read(pipe, ih->imgsize, sizeof(unsigned int));
+	numbytes = read(pipe, ih->bpmx, sizeof(unsigned int));
+	numbytes = read(pipe, ih->bpmy, sizeof(unsigned int));
+	numbytes = read(pipe, ih->colors, sizeof(unsigned int));
+	numbytes = read(pipe, ih->imxtcolors, sizeof(unsigned int));
+
+	unsigned char* imgdata = (unsigned char*)malloc(sizeof(unsigned char)*ih->imgsize[0]);   
+	unsigned char* basura = (unsigned char*)malloc(sizeof(unsigned char));;
+	for (int i = 0; i < ih->imgsize[0]; ++i){
+		read(pipe, basura, sizeof(unsigned char));
+		imgdata[i] = basura[0];
+	}
+  	return imgdata;
+}
+
+void escribirPipe(int pipe,bmpInfoHeader* ih, bmpFileHeader* fh, unsigned char* imagen){
+	int escribir, numbytes, x, y;
+	unsigned char* basura = (unsigned char*)malloc(sizeof(unsigned char));;
+	char* bm = "BM";
+	
+	numbytes = write(pipe, bm, sizeof(char)*2);
+	numbytes = write(pipe, fh->size, sizeof(unsigned int));
+	numbytes = write(pipe, fh->resv1, sizeof(unsigned short));
+	numbytes = write(pipe, fh->resv2, sizeof(unsigned short));
+	numbytes = write(pipe, fh->offset, sizeof(unsigned int));
+	numbytes = write(pipe, ih->headersize, sizeof(unsigned int));
+	numbytes = write(pipe, ih->width, sizeof(unsigned int));
+	numbytes = write(pipe, ih->height, sizeof(unsigned int));
+	numbytes = write(pipe, ih->planes, sizeof(unsigned short));
+	numbytes = write(pipe, ih->bpp, sizeof(unsigned short));
+	numbytes = write(pipe, ih->compress, sizeof(unsigned int));
+	numbytes = write(pipe, ih->imgsize, sizeof(unsigned int));
+	numbytes = write(pipe, ih->bpmx, sizeof(unsigned int));
+	numbytes = write(pipe, ih->bpmy, sizeof(unsigned int));
+	numbytes = write(pipe, ih->colors, sizeof(unsigned int));
+	numbytes = write(pipe, ih->imxtcolors, sizeof(unsigned int));
+	for (int i = 0; i < ih->imgsize[0]; ++i){
+		basura[0] = imagen[i];
+		write(pipe, basura, sizeof(unsigned char));
+	}
+	close(pipe);
+}
+
+
 
 // Funcion: Se encarga de leer los archivos de imagen y guardarlo en variables correspondientes
 // Entrada: Nombre de archivo a leer, puntero estructura FileHeader y InfoHeader vacios
@@ -76,10 +136,10 @@ unsigned char* lectura(char* nombre,bmpFileHeader* fh, bmpInfoHeader* ih){
   	return imgdata;
 }
 
+
 // Funcion: Se encarga de asignar memoria a los punteros para guardar header de imagen con informacion de estas
 // Entrada: Puntero estructura FileHeader y InfoHeader vacios
 // Salida: puntero estructura FileHeader y InfoHeader con memoria asignada
-
 void iniciador(bmpFileHeader* fh, bmpInfoHeader* ih){
 	fh->size = (unsigned int*)malloc(sizeof(unsigned int));        
 	fh->resv1 = (unsigned short*)malloc(sizeof(unsigned short));     
@@ -100,10 +160,10 @@ void iniciador(bmpFileHeader* fh, bmpInfoHeader* ih){
 	ih->imxtcolors = (unsigned int*)malloc(sizeof(unsigned int));    
 }
 
+
 // Funcion: Se encarga de convertir valores del rgb de la imagen en gris segun la escala de grises dada
 // Entrada: Imagen leida en chars y estructura InfoHeader
 // Salida: imagen convertida a escala de grises
-
 void gris(unsigned char* imagen, bmpInfoHeader* ih){
 	unsigned int x, y, r, g ,b, gris;
 
