@@ -27,15 +27,12 @@ void datapath(int cantidadImg, int uBinarizacion, int uClasificacion, int mostra
 		binarizacion(uBinarizacion, imgdata, ih);
 		//CLASIFICA
 		if (mostrar == 1){
-		printf("| 	%s	|",nImagen);
+		
 		}
 		clasificacion(uClasificacion, imgdata, ih, mostrar);
 		escribir(ih, fh, imgdata, i);
 	}
 }
-
-
-
 
 
 unsigned char* lecturaPipe(int pipe ,bmpFileHeader* fh, bmpInfoHeader* ih){
@@ -207,7 +204,7 @@ void binarizacion(int umbral, unsigned char* imagen, bmpInfoHeader* ih){
 // Funcion: Se encarga de contar pixeles blancos y negros de la imagen y calcular % de negro de la imagen, decidiendo si pasa el uimbral de clasificacion
 // Entrada: Imagen binarizada y uimbral de clasificacion
 // Salida: resultado uimbral de clasificacion
-void clasificacion(int umbral, unsigned char* imagen, bmpInfoHeader* ih, int mostrar){
+void clasificacion(int umbral, unsigned char* imagen, bmpInfoHeader* ih, int mostrar, char* nImagen){
 	float blanco = 0, negro = 0, porcentaje = 0;
 	for (int i = 0; i < ih->imgsize[0]; i+=4){
 		if(imagen[i] == 255){
@@ -230,18 +227,18 @@ void clasificacion(int umbral, unsigned char* imagen, bmpInfoHeader* ih, int mos
 		}
 	}
 	porcentaje = (negro / (blanco + negro))*100;
-	
 	if(porcentaje >= umbral){
 		if (mostrar == 1){
+			printf("| 	%s	|",nImagen);
 			printf(" 	Yes		|\n");
 		}
 	}
 	else{
 		if (mostrar == 1){
+			printf("| 	%s	|",nImagen);
 			printf(" 	No		|\n");
 		}
-	}
-	
+	}	
 }
 
 // Funcion: Se encarga de escribir la imagen binarizada
