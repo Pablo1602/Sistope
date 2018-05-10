@@ -230,7 +230,7 @@ void clasificacion(int umbral, unsigned char* imagen, bmpInfoHeader* ih, int mos
 	}
 	porcentaje = (negro / (blanco + negro))*100;
 	
-	/*if(porcentaje >= umbral){
+	if(porcentaje >= umbral){
 		if (mostrar == 1){
 			printf(" 	Yes		|\n");
 		}
@@ -239,7 +239,7 @@ void clasificacion(int umbral, unsigned char* imagen, bmpInfoHeader* ih, int mos
 		if (mostrar == 1){
 			printf(" 	No		|\n");
 		}
-	}*/
+	}
 	
 }
 

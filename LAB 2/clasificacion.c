@@ -3,15 +3,21 @@
 
 int main(int argc, char const *argv[])
 {
-	printf("Clasificacion %d\n", atoi(argv[4]));
+	//printf("Clasificacion %d\n", atoi(argv[4]));
 	
 	unsigned char* imgdata;
 	int uClasificacion =  atoi(argv[2]);
 	int mostrar = atoi(argv[3]);
 	bmpFileHeader* fh =(bmpFileHeader*)malloc(sizeof(bmpFileHeader));
 	bmpInfoHeader* ih =(bmpInfoHeader*)malloc(sizeof(bmpInfoHeader));
-	int status, p[2], execValor, i;
+	char* nImagen = (char*)malloc(sizeof(char)*10);
+	int status, p[2], execValor, i = atoi(argv[4]);
 	
+	sprintf(nImagen, "imagen_%d.bmp",i);
+	if(atoi(argv[3]) == 1){
+		printf("| 	%s	|",nImagen);
+	}
+
 	iniciador(fh, ih);
 	imgdata = lecturaPipe(0,fh,ih);
 	clasificacion(uClasificacion,imgdata,ih,mostrar);

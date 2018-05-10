@@ -13,6 +13,6 @@ int main(int argc, char const *argv[])
 	imgdata = lecturaPipe(0,fh,ih);
 	escribir(ih, fh, imgdata, i);
 	
-	printf("Termino una Line de %d\n",i);
+	//printf("Termino la Line %d\n",i);
 	return 0;
 }

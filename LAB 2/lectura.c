@@ -3,7 +3,7 @@
 
 int main(int argc, char const *argv[])
 {
-	printf("Lectura %d\n", atoi(argv[4]));
+	//printf("Lectura %d\n", atoi(argv[4]));
 	
 	unsigned char* imgdata;
 	int i = atoi(argv[4]);

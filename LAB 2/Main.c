@@ -45,16 +45,17 @@ int main(int argc, char *const argv[]){
 	for (i = 0; i < 6; ++i){
 		argexec[i]= (char*)malloc(sizeof(char)*15);
 	}
-
+	if (atoi(mostrar) == 1){
+		printf("| 	Numero Imagen 	| 	Nearly black 	|\n-------------------------------------------------\n");
+	}
 	for (i = 1; i <= cantImg; ++i){
-		printf("INICIO %d de %d\n", i, cantImg);
+		//printf("INICIO %d de %d\n", i, cantImg);
 		sprintf(argexec[0], "%s",cantidadImg);
 		sprintf(argexec[1], "%s",uBnarizar);
 		sprintf(argexec[2], "%s",uCasifica);
 		sprintf(argexec[3], "%s",mostrar);
 		sprintf(argexec[4], "%d",i);
 		argexec[5] = (char*)NULL;
-
 		switch(pid = fork()){
 			case 0:
 				//printf("Soy Hijo\n");
@@ -67,6 +68,7 @@ int main(int argc, char *const argv[]){
 			default:
 				break;
 		}
+
 		waitpid(pid,&status,0);
 	}
 	printf("Finalizacion del main\n");

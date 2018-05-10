@@ -5,4 +5,4 @@ make compile:
 	gcc escritura.c -o escritura
 	gcc clasificacion.c -o clasificacion
 	gcc lectura.c -o lectura
-	./Main -c 2 -u 60 -n 88 -b
+	./Main -c 6 -u 60 -n 88 -b

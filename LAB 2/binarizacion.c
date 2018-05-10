@@ -3,7 +3,7 @@
 
 int main(int argc, char const *argv[])
 {
-	printf("Binarizacion %d\n", atoi(argv[4]));
+	//printf("Binarizacion %d\n", atoi(argv[4]));
 	
 	unsigned char* imgdata;
 	int uBinarizacion =  atoi(argv[1]);

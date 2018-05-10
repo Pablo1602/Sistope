@@ -3,7 +3,7 @@
 
 int main(int argc, char const *argv[])
 {
-	printf("Conversion gris %d\n", atoi(argv[4]));
+	//printf("Conversion gris %d\n", atoi(argv[4]));
 	
 	unsigned char* imgdata;
 	int nImagen    =  atoi(argv[4]);
