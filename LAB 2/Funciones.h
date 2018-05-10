@@ -18,7 +18,7 @@ void datapath(int cantidadImg, int uBinarizacion, int uClasificacion, int mostra
 		printf("| 	Numero Imagen 	| 	Nearly black 	|\n-------------------------------------------------\n");
 	}
 	for (i = 1; i <= cantidadImg; ++i){
-		//Inicio datapath
+		//IniBcio datapath
 		sprintf(nImagen, "imagen_%d.bmp",i);
 		imgdata = lectura(nImagen, fh, ih);
 		//A gris
@@ -27,7 +27,7 @@ void datapath(int cantidadImg, int uBinarizacion, int uClasificacion, int mostra
 		binarizacion(uBinarizacion, imgdata, ih);
 		//CLASIFICA
 		if (mostrar == 1){
-		
+		printf("| 	%s	|",nImagen);
 		}
 		clasificacion(uClasificacion, imgdata, ih, mostrar);
 		escribir(ih, fh, imgdata, i);
@@ -35,7 +35,8 @@ void datapath(int cantidadImg, int uBinarizacion, int uClasificacion, int mostra
 }
 
 
-unsigned char* lecturaPipe(int pipe ,bmpFileHeader* fh, bmpInfoHeader* ih){
+
+unsigned char* lecturaPipe(int pipe, bmpFileHeader* fh, bmpInfoHeader* ih){
 	int imagen, numbytes, x, y;
 	char* bm = (char*)malloc(sizeof(char)*2);
 
@@ -57,7 +58,7 @@ unsigned char* lecturaPipe(int pipe ,bmpFileHeader* fh, bmpInfoHeader* ih){
 	numbytes = read(pipe, ih->imxtcolors, sizeof(unsigned int));
 
 	unsigned char* imgdata = (unsigned char*)malloc(sizeof(unsigned char)*ih->imgsize[0]);   
-	unsigned char* basura = (unsigned char*)malloc(sizeof(unsigned char));
+	unsigned char* basura = (unsigned char*)malloc(sizeof(unsigned char));;
 	for (int i = 0; i < ih->imgsize[0]; ++i){
 		read(pipe, basura, sizeof(unsigned char));
 		imgdata[i] = basura[0];
@@ -65,7 +66,7 @@ unsigned char* lecturaPipe(int pipe ,bmpFileHeader* fh, bmpInfoHeader* ih){
   	return imgdata;
 }
 
-void escribirPipe(int pipe,bmpInfoHeader* ih, bmpFileHeader* fh, unsigned char* imagen){
+void escribirPipe(int pipe, bmpInfoHeader* ih, bmpFileHeader* fh, unsigned char* imagen){
 	int escribir, numbytes, x, y;
 	unsigned char* basura = (unsigned char*)malloc(sizeof(unsigned char));;
 	char* bm = "BM";
@@ -86,11 +87,12 @@ void escribirPipe(int pipe,bmpInfoHeader* ih, bmpFileHeader* fh, unsigned char* 
 	numbytes = write(pipe, ih->bpmy, sizeof(unsigned int));
 	numbytes = write(pipe, ih->colors, sizeof(unsigned int));
 	numbytes = write(pipe, ih->imxtcolors, sizeof(unsigned int));
+	
 	for (int i = 0; i < ih->imgsize[0]; ++i){
 		basura[0] = imagen[i];
 		write(pipe, basura, sizeof(unsigned char));
 	}
-	close(pipe);
+	//close(pipe);
 }
 
 
@@ -204,7 +206,7 @@ void binarizacion(int umbral, unsigned char* imagen, bmpInfoHeader* ih){
 // Funcion: Se encarga de contar pixeles blancos y negros de la imagen y calcular % de negro de la imagen, decidiendo si pasa el uimbral de clasificacion
 // Entrada: Imagen binarizada y uimbral de clasificacion
 // Salida: resultado uimbral de clasificacion
-void clasificacion(int umbral, unsigned char* imagen, bmpInfoHeader* ih, int mostrar, char* nImagen){
+void clasificacion(int umbral, unsigned char* imagen, bmpInfoHeader* ih, int mostrar){
 	float blanco = 0, negro = 0, porcentaje = 0;
 	for (int i = 0; i < ih->imgsize[0]; i+=4){
 		if(imagen[i] == 255){
@@ -227,18 +229,18 @@ void clasificacion(int umbral, unsigned char* imagen, bmpInfoHeader* ih, int mos
 		}
 	}
 	porcentaje = (negro / (blanco + negro))*100;
-	if(porcentaje >= umbral){
+	
+	/*if(porcentaje >= umbral){
 		if (mostrar == 1){
-			printf("| 	%s	|",nImagen);
 			printf(" 	Yes		|\n");
 		}
 	}
 	else{
 		if (mostrar == 1){
-			printf("| 	%s	|",nImagen);
 			printf(" 	No		|\n");
 		}
-	}	
+	}*/
+	
 }
 
 // Funcion: Se encarga de escribir la imagen binarizada

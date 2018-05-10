@@ -8,9 +8,11 @@ int main(int argc, char const *argv[])
 	bmpFileHeader* fh =(bmpFileHeader*)malloc(sizeof(bmpFileHeader));
 	bmpInfoHeader* ih =(bmpInfoHeader*)malloc(sizeof(bmpInfoHeader));
 	int status,p[2];
+
 	iniciador(fh, ih);
-	imgdata = lecturaPipe(0, nImagen,fh,ih);
+	imgdata = lecturaPipe(0,fh,ih);
 	escribir(ih, fh, imgdata, i);
-	printf("Termino una Line\n");
+	
+	printf("Termino una Line de %d\n",i);
 	return 0;
 }

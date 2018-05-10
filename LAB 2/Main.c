@@ -40,15 +40,14 @@ int main(int argc, char *const argv[]){
 
 	pid_t pid;
 	int status,i;
-
-	int cantImg  = atoi(argv[1]);
-	char** argexec = (char**)malloc(sizeof(char*)*5);
-	for (i = 0; i < 7; ++i){
+	int cantImg  = atoi(cantidadImg);
+	char** argexec = (char**)malloc(sizeof(char*)*6);
+	for (i = 0; i < 6; ++i){
 		argexec[i]= (char*)malloc(sizeof(char)*15);
 	}
 
-	for (i = 0; i < cantImg; ++i)
-	{
+	for (i = 1; i <= cantImg; ++i){
+		printf("INICIO %d de %d\n", i, cantImg);
 		sprintf(argexec[0], "%s",cantidadImg);
 		sprintf(argexec[1], "%s",uBnarizar);
 		sprintf(argexec[2], "%s",uCasifica);
@@ -58,7 +57,7 @@ int main(int argc, char *const argv[]){
 
 		switch(pid = fork()){
 			case 0:
-				printf("Soy Hijo\n");
+				//printf("Soy Hijo\n");
 				execValor = execvp("./lectura",argexec);
 				printf("Error en exec\n");
 				break;
@@ -68,9 +67,9 @@ int main(int argc, char *const argv[]){
 			default:
 				break;
 		}
+		waitpid(pid,&status,0);
 	}
-	waitpid(pid,&status,0);
-
+	printf("Finalizacion del main\n");
 	return 0;
 }
 
