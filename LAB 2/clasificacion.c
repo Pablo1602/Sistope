@@ -3,7 +3,7 @@
 
 int main(int argc, char const *argv[])
 {
-	//printf("Clasificacion %d\n", atoi(argv[4]));
+	
 	
 	unsigned char* imgdata;
 	int uClasificacion =  atoi(argv[2]);
@@ -50,7 +50,6 @@ int main(int argc, char const *argv[])
 			close(p[0]);
 			dup2(p[1],STDOUT_FILENO);
 			escribirPipe(1,ih,fh,imgdata);
-			//todoo
 			break;
 	}
 	waitpid(pid,&status,0);

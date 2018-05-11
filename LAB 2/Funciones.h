@@ -2,42 +2,11 @@
 #define FUNCIONES_H
 #include "Headers.h"
 
-
-// Funcion: Se encarga de la ejecucion del "datapath" completo, llamando a las demas imagenes para que realizen su función
-// Entrada: cantidad de imagenes, umbral de binarizacion, umbral de clasificacion y instruccion si se debe moistrar resultado por pantalla o no
-// Salida: Ejecucción del Programa
-void datapath(int cantidadImg, int uBinarizacion, int uClasificacion, int mostrar){
-	int i;
-	unsigned char* imgdata;
-	bmpFileHeader* fh =(bmpFileHeader*)malloc(sizeof(bmpFileHeader));
-	bmpInfoHeader* ih =(bmpInfoHeader*)malloc(sizeof(bmpInfoHeader));
-	char* nImagen = (char*)malloc(sizeof(char)*10);
-	char* numero = (char*)malloc(sizeof(char)*5);
-	iniciador(fh, ih);
-	if (mostrar == 1){
-		printf("| 	Numero Imagen 	| 	Nearly black 	|\n-------------------------------------------------\n");
-	}
-	for (i = 1; i <= cantidadImg; ++i){
-		//IniBcio datapath
-		sprintf(nImagen, "imagen_%d.bmp",i);
-		imgdata = lectura(nImagen, fh, ih);
-		//A gris
-		gris(imgdata, ih);
-		//Binarizar
-		binarizacion(uBinarizacion, imgdata, ih);
-		//CLASIFICA
-		if (mostrar == 1){
-		printf("| 	%s	|",nImagen);
-		}
-		clasificacion(uClasificacion, imgdata, ih, mostrar);
-		escribir(ih, fh, imgdata, i);
-	}
-}
-
-
-
+// Funcion: Se encarga de leer del pipe y guardarlo en variables correspondientes
+// Entrada: valor lectura pipe, Nombre de archivo a leer, puntero estructura FileHeader y InfoHeader vacios
+// Salida: puntero estructura FileHeader y InfoHeader vacios y imagen leida
 unsigned char* lecturaPipe(int pipe, bmpFileHeader* fh, bmpInfoHeader* ih){
-	int imagen, numbytes, x, y;
+	int numbytes;
 	char* bm = (char*)malloc(sizeof(char)*2);
 
 	numbytes = read(pipe, bm, sizeof(char)*2);
@@ -66,8 +35,12 @@ unsigned char* lecturaPipe(int pipe, bmpFileHeader* fh, bmpInfoHeader* ih){
   	return imgdata;
 }
 
+
+// Funcion: Se encarga de escribir en pipe con formato de .bmp
+// Entrada: numero pipe, Imagen binarizada, numerod de imagen y cabeceras
+// Salida: Imagen en formato .bmp
 void escribirPipe(int pipe, bmpInfoHeader* ih, bmpFileHeader* fh, unsigned char* imagen){
-	int escribir, numbytes, x, y;
+	int  numbytes;
 	unsigned char* basura = (unsigned char*)malloc(sizeof(unsigned char));;
 	char* bm = "BM";
 	
@@ -101,7 +74,7 @@ void escribirPipe(int pipe, bmpInfoHeader* ih, bmpFileHeader* fh, unsigned char*
 // Entrada: Nombre de archivo a leer, puntero estructura FileHeader y InfoHeader vacios
 // Salida: puntero estructura FileHeader y InfoHeader vacios y imagen leida
 unsigned char* lectura(char* nombre,bmpFileHeader* fh, bmpInfoHeader* ih){
-	int imagen, numbytes, x, y;
+	int imagen, numbytes;
 	char* bm = (char*)malloc(sizeof(char)*2);
 
   	imagen = open(nombre, O_RDONLY);	
@@ -164,9 +137,9 @@ void iniciador(bmpFileHeader* fh, bmpInfoHeader* ih){
 // Entrada: Imagen leida en chars y estructura InfoHeader
 // Salida: imagen convertida a escala de grises
 void gris(unsigned char* imagen, bmpInfoHeader* ih){
-	unsigned int x, y, r, g ,b, gris;
+	unsigned int i, r, g ,b, gris;
 
-    for (int i = 0; i < ih->imgsize[0]; i+=4){
+    for ( i = 0; i < ih->imgsize[0]; i+=4){
       	b=(imagen[i]);
       	g=(imagen[i+1]);
       	r=(imagen[i+2]);
@@ -183,7 +156,8 @@ void gris(unsigned char* imagen, bmpInfoHeader* ih){
 // Entrada: Imagen en escala de grises y umbral de binarizacion
 // Salida: imagen binarizada
 void binarizacion(int umbral, unsigned char* imagen, bmpInfoHeader* ih){
-	for (int i = 0; i < ih->imgsize[0]; i+=4){
+	int i;
+	for ( i = 0; i < ih->imgsize[0]; i+=4){
 		if(imagen[i] > umbral)
 			imagen[i] = 255;
 		else{
@@ -207,8 +181,9 @@ void binarizacion(int umbral, unsigned char* imagen, bmpInfoHeader* ih){
 // Entrada: Imagen binarizada y uimbral de clasificacion
 // Salida: resultado uimbral de clasificacion
 void clasificacion(int umbral, unsigned char* imagen, bmpInfoHeader* ih, int mostrar){
+	int i;
 	float blanco = 0, negro = 0, porcentaje = 0;
-	for (int i = 0; i < ih->imgsize[0]; i+=4){
+	for ( i = 0; i < ih->imgsize[0]; i+=4){
 		if(imagen[i] == 255){
 			blanco++;
 		}
@@ -247,7 +222,7 @@ void clasificacion(int umbral, unsigned char* imagen, bmpInfoHeader* ih, int mos
 // Entrada: Imagen binarizada, numerod de imagen y cabeceras
 // Salida: Imagen en formato .bmp
 void escribir(bmpInfoHeader* ih, bmpFileHeader* fh, unsigned char* imagen, int nImagen){
-	int escribir, numbytes, x, y;
+	int escribir, numbytes;
 	unsigned char* basura = (unsigned char*)malloc(sizeof(unsigned char));;
 	char* bm = "BM";
 	char* nSalida = (char*)malloc(sizeof(char)*20);
@@ -277,7 +252,7 @@ void escribir(bmpInfoHeader* ih, bmpFileHeader* fh, unsigned char* imagen, int n
 		basura[0] = imagen[i];
 		write(escribir, basura, sizeof(unsigned char));
 	}
-	
+		
 	close(escribir);
 }
 

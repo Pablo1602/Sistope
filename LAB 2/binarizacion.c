@@ -3,7 +3,6 @@
 
 int main(int argc, char const *argv[])
 {
-	//printf("Binarizacion %d\n", atoi(argv[4]));
 	
 	unsigned char* imgdata;
 	int uBinarizacion =  atoi(argv[1]);
@@ -14,10 +13,8 @@ int main(int argc, char const *argv[])
 	iniciador(fh, ih);
 	imgdata = lecturaPipe(0,fh,ih);
 	binarizacion(uBinarizacion, imgdata, ih);
-
 	pid_t pid;
 	pipe(p);
-
 	char** argexec = (char**)malloc(sizeof(char*)*6);
 	for (i = 0; i < 6; ++i){
 		argexec[i]= (char*)malloc(sizeof(char)*15);
@@ -43,7 +40,6 @@ int main(int argc, char const *argv[])
 			close(p[0]);
 			dup2(p[1],STDOUT_FILENO);
 			escribirPipe(1,ih,fh,imgdata);
-			//todoo
 			break;
 	}
 	waitpid(pid,&status,0);

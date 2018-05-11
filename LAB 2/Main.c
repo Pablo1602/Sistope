@@ -1,9 +1,7 @@
 #include "Headers.h"
 #include "Funciones.h"
 
-int main(int argc, char *const argv[]){
-
-  
+int main(int argc, char *const argv[]){  
 	char* mostrar = (char*)malloc(sizeof(char)*10);
 	strcpy(mostrar, "0");
 	char*  cantidadImg = (char*)malloc(sizeof(char)*10);
@@ -49,7 +47,6 @@ int main(int argc, char *const argv[]){
 		printf("| 	Numero Imagen 	| 	Nearly black 	|\n-------------------------------------------------\n");
 	}
 	for (i = 1; i <= cantImg; ++i){
-		//printf("INICIO %d de %d\n", i, cantImg);
 		sprintf(argexec[0], "%s",cantidadImg);
 		sprintf(argexec[1], "%s",uBnarizar);
 		sprintf(argexec[2], "%s",uCasifica);
@@ -58,7 +55,6 @@ int main(int argc, char *const argv[]){
 		argexec[5] = (char*)NULL;
 		switch(pid = fork()){
 			case 0:
-				//printf("Soy Hijo\n");
 				execValor = execvp("./lectura",argexec);
 				printf("Error en exec\n");
 				break;
@@ -71,7 +67,6 @@ int main(int argc, char *const argv[]){
 
 		waitpid(pid,&status,0);
 	}
-	printf("Finalizacion del main\n");
 	return 0;
 }
 

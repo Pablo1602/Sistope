@@ -3,7 +3,6 @@
 
 int main(int argc, char const *argv[])
 {
-	//printf("Conversion gris %d\n", atoi(argv[4]));
 	
 	unsigned char* imgdata;
 	int nImagen    =  atoi(argv[4]);
@@ -28,9 +27,6 @@ int main(int argc, char const *argv[])
 	sprintf(argexec[3], "%s",argv[3]);
 	sprintf(argexec[4], "%s",argv[4]);
 	argexec[5] = (char*)NULL;	
-
-	//i =  atoi(argv[4]);
-	//escribir(ih, fh, imgdata, i);
 	switch(pid = fork()){
 		case 0:
 			close(p[1]);
@@ -45,7 +41,6 @@ int main(int argc, char const *argv[])
 			close(p[0]);
 			dup2(p[1],STDOUT_FILENO);
 			escribirPipe(1,ih,fh,imgdata);
-			//todoo
 			break;
 	}
 	waitpid(pid,&status,0);
