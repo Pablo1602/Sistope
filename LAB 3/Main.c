@@ -3,13 +3,16 @@
 
 int main(int argc, char *const argv[]){
 
-  int cantidadImg, uBnarizar, uCasifica, mostrar;
+  int cantidadImg, uBnarizar, uCasifica, mostrar, numHbr;
   int c;
-  while ((c = getopt (argc, argv, "c:u:n:b")) != -1){
+  while ((c = getopt (argc, argv, "c:h:u:n:b")) != -1){
 		switch (c){
 			case 'c':
 				sscanf(optarg, "%d", &cantidadImg);
 				break;
+			case 'h':
+				sscanf(optarg, "%d", &numHbr);
+				break;	
 			case 'u':
 				sscanf(optarg, "%d", &uBnarizar);
 				break;
@@ -31,7 +34,7 @@ int main(int argc, char *const argv[]){
 				abort ();
 		}
 	}
-	datapath(cantidadImg, uBnarizar, uCasifica, mostrar);
+	datapath(cantidadImg, numHbr, uBnarizar, uCasifica, mostrar);
 	return 0;
 }
 

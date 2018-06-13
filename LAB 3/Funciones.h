@@ -8,7 +8,7 @@
 // Entrada: cantidad de imagenes, umbral de binarizacion, umbral de clasificacion y instruccion si se debe moistrar resultado por pantalla o no
 // Salida: Ejecucción del Programa
 
-void datapath(int cantidadImg, int uBinarizacion, int uClasificacion, int mostrar){
+void datapath(int cantidadImg,int numeroHebras, int uBinarizacion, int uClasificacion, int mostrar){
 	int i;
 	unsigned char* imgdata;
 	bmpFileHeader* fh =(bmpFileHeader*)malloc(sizeof(bmpFileHeader));
@@ -19,19 +19,34 @@ void datapath(int cantidadImg, int uBinarizacion, int uClasificacion, int mostra
 	if (mostrar == 1){
 		printf("| 	Numero Imagen 	| 	Nearly black 	|\n-------------------------------------------------\n");
 	}
+
+	pthread_t* hebras;
+	hebras = (pthread_t*)malloc(sizeof(pthread_t)*numeroHebras);
+
+
 	for (i = 1; i <= cantidadImg; ++i){
-		//Inicio datapath
+
+		// Hebra 1 tiene que leer la imagen
 		sprintf(nImagen, "imagen_%d.bmp",i);
-		imgdata = lectura(nImagen, fh, ih);
-		//A gris
+		pthread_create(&hebras[0], NULL, lectura, (void*)imgdata, (void*)nImagen , (void*)fh, (void*)ih,)
+		//n Hebras tienen que pasar a gris imagen y binarizar.
+		
+		//esperar hebras
 		gris(imgdata, ih);
-		//Binarizar
+		
+		//esperar hebras
 		binarizacion(uBinarizacion, imgdata, ih);
-		//CLASIFICA
+		//esperar hebras
+		
+		//hebras deben contar los negros que existen en la imagen luego de binarizarla 
 		if (mostrar == 1){
 		printf("| 	%s	|",nImagen);
 		}
 		clasificacion(uClasificacion, imgdata, ih, mostrar);
+		
+		//esperar hebras
+		
+		// esto debe hacerlo main, no proceso
 		escribir(ih, fh, imgdata, i);
 
 	}
@@ -41,7 +56,10 @@ void datapath(int cantidadImg, int uBinarizacion, int uClasificacion, int mostra
 // Funcion: Se encarga de leer los archivos de imagen y guardarlo en variables correspondientes
 // Entrada: Nombre de archivo a leer, puntero estructura FileHeader y InfoHeader vacios
 // Salida: puntero estructura FileHeader y InfoHeader vacios y imagen leida
-unsigned char* lectura(char* nombre,bmpFileHeader* fh, bmpInfoHeader* ih){
+void lectura(void* imgdata, void* nombreEntrada,bmpFileHeader* fh, bmpInfoHeader* ih){
+	char** img = imgdata;
+	char* nombre = nombreEntrada;
+	// agregar casteos
 	int imagen, numbytes, x, y;
 	char* bm = (char*)malloc(sizeof(char)*2);
 
@@ -64,7 +82,7 @@ unsigned char* lectura(char* nombre,bmpFileHeader* fh, bmpInfoHeader* ih){
 	numbytes = read(imagen, ih->colors, sizeof(unsigned int));
 	numbytes = read(imagen, ih->imxtcolors, sizeof(unsigned int));
 
-	unsigned char* imgdata = (unsigned char*)malloc(sizeof(unsigned char)*ih->imgsize[0]);   
+	imgdata = (unsigned char*)malloc(sizeof(unsigned char)*ih->imgsize[0]);   
 	unsigned char* basura = (unsigned char*)malloc(sizeof(unsigned char));;
 
 	lseek(imagen,fh->offset[0],SEEK_SET);
@@ -73,7 +91,7 @@ unsigned char* lectura(char* nombre,bmpFileHeader* fh, bmpInfoHeader* ih){
 		imgdata[i] = basura[0];
 	}
   	close(imagen);
-  	return imgdata;
+  	return;
 }
 
 // Funcion: Se encarga de asignar memoria a los punteros para guardar header de imagen con informacion de estas
