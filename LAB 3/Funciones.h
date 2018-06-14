@@ -9,7 +9,7 @@
 // Salida: Ejecucción del Programa
 
 void datapath(int cantidadImg,int numeroHebras, int uBinarizacion, int uClasificacion, int mostrar){
-	int i;
+	int i, j;
 	unsigned char* imgdata;
 	bmpFileHeader* fh =(bmpFileHeader*)malloc(sizeof(bmpFileHeader));
 	bmpInfoHeader* ih =(bmpInfoHeader*)malloc(sizeof(bmpInfoHeader));
@@ -20,23 +20,30 @@ void datapath(int cantidadImg,int numeroHebras, int uBinarizacion, int uClasific
 		printf("| 	Numero Imagen 	| 	Nearly black 	|\n-------------------------------------------------\n");
 	}
 
+	pthread_barrier_t mybarrier;
 	pthread_t* hebras;
 	hebras = (pthread_t*)malloc(sizeof(pthread_t)*numeroHebras);
 
 
 	for (i = 1; i <= cantidadImg; ++i){
 
-		// Hebra 1 tiene que leer la imagen
+		pthread_barrier_init(&mybarrier, NULL, numeroHebras+1);
 		sprintf(nImagen, "imagen_%d.bmp",i);
-		pthread_create(&hebras[0], NULL, lectura, (void*)imgdata, (void*)nImagen , (void*)fh, (void*)ih,)
+		// Hebra 1 tiene que leer la imagen
+		pthread_create(&hebras[0], NULL, lectura, (void*)&imgdata, (void*)&nImagen , (void*)&fh, (void*)&ih,)
 		//n Hebras tienen que pasar a gris imagen y binarizar.
 		
 		//esperar hebras
+		pthread_barrier_wait(&mybarrier);
 		gris(imgdata, ih);
 		
 		//esperar hebras
+		pthread_barrier_wait(&mybarrier);
+
 		binarizacion(uBinarizacion, imgdata, ih);
+		
 		//esperar hebras
+		pthread_barrier_wait(&mybarrier);
 		
 		//hebras deben contar los negros que existen en la imagen luego de binarizarla 
 		if (mostrar == 1){
@@ -45,10 +52,14 @@ void datapath(int cantidadImg,int numeroHebras, int uBinarizacion, int uClasific
 		clasificacion(uClasificacion, imgdata, ih, mostrar);
 		
 		//esperar hebras
-		
+		pthread_barrier_wait(&mybarrier);
+
 		// esto debe hacerlo main, no proceso
 		escribir(ih, fh, imgdata, i);
-
+ 		for (j=0; j<numeroHebras; j++) {
+    		pthread_join(hebras[j], NULL);
+  		}
+		pthread_barrier_destroy(&mybarrier);
 	}
 	
 }
