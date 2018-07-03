@@ -1,2 +1,2 @@
 make compile: 
-	gcc Main.c -o Main
+	gcc Main.c -o Main -pthread

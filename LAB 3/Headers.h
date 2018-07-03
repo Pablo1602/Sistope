@@ -36,12 +36,15 @@ typedef struct bmpInfoHeader
 } bmpInfoHeader;
 
 
+pthread_mutex_t lock;
+float negro, blanco, porcentaje;
+
 void datapath(int cantidadImg,int numeroHebras, int uBinarizacion, int uClasificacion, int mostrar);
 void iniciador(bmpFileHeader* fh, bmpInfoHeader* ih);
 void *lectura(void* imgdata, void* nombreEntrada, void* fh, void* ih);
-void *gris(unsigned char* imagen, bmpInfoHeader* info);
+void *gris(void* imagen, void* ih);
+void *binarizacion(void* umbral, void* imagen, void* ih);
+void *clasificacion(void* umbral, void* imagen, void* ih, void* mostrar);
 void *escribir(bmpInfoHeader* ih, bmpFileHeader* fh, unsigned char* imagen, int nImagen);
-void *binarizacion(int umbral, unsigned char* imagen, bmpInfoHeader* ih);
-void *clasificacion(int umbral, unsigned char* imagen, bmpInfoHeader* ih, int mostrar);
 
 #endif
