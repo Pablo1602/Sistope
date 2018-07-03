@@ -44,7 +44,7 @@ void iniciador(bmpFileHeader* fh, bmpInfoHeader* ih);
 void *lectura(void* imgdata, void* nombreEntrada, void* fh, void* ih);
 void *gris(void* imagen, void* ih);
 void *binarizacion(void* umbral, void* imagen, void* ih);
-void *clasificacion(void* umbral, void* imagen, void* ih, void* mostrar);
+void *clasificacion(void* imagen, void* ih);
 void *escribir(bmpInfoHeader* ih, bmpFileHeader* fh, unsigned char* imagen, int nImagen);
 
 #endif

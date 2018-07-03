@@ -64,13 +64,22 @@ void datapath(int cantidadImg,int numeroHebras, int uBinarizacion, int uClasific
 		printf("| 	%s	|",nImagen);
 		}
 		
-		arg[0]=(void*)&uClasificacion;
-		arg[1]=(void*)imgdata;
-		arg[2]=(void*)ih;
-		arg[3]=(void*)&mostrar;
+		arg[0]=(void*)imgdata;
+		arg[1]=(void*)ih;
 		pthread_mutex_init(&lock, NULL);
 		pthread_create(&hebras[0], NULL, (void*)clasificacion, (void*)&arg);
-		
+
+		if(porcentaje >= uClasificacion){
+			if (mostrar == 1){
+				printf(" 	Yes		|\n");
+			}
+		}
+		else{
+			if (mostrar == 1){
+				printf(" 	No		|\n");
+			}
+		}
+
 		//esperar hebras
 		pthread_barrier_wait(&mybarrier);
 
@@ -212,11 +221,9 @@ void *binarizacion(void* umbral, void* imagen, void* ih){
 // Funcion: Se encarga de contar pixeles blancos y negros de la imagen y calcular % de negro de la imagen, decidiendo si pasa el uimbral de clasificacion
 // Entrada: Imagen binarizada y uimbral de clasificacion
 // Salida: resultado uimbral de clasificacion
-void *clasificacion(void* umbral, void* imagen, void* ih, void* mostrar){
-	int* umbral1 = (int*) umbral;
+void *clasificacion(void* imagen, void* ih){
 	unsigned char* imagen1 = (unsigned char*) imagen;
 	bmpInfoHeader* ih1 = (bmpInfoHeader*) ih;
-	int* mostrar1 = (int*) mostrar;
 
 	//Seccion critica
 	pthread_mutex_lock(&lock);
@@ -242,17 +249,6 @@ void *clasificacion(void* umbral, void* imagen, void* ih, void* mostrar){
 	}
 	porcentaje = (negro / (blanco + negro))*100;
 	pthread_mutex_unlock(&lock);
-	
-	if(porcentaje >= umbral1[0]){
-		if (mostrar1[0] == 1){
-			printf(" 	Yes		|\n");
-		}
-	}
-	else{
-		if (mostrar1[0] == 1){
-			printf(" 	No		|\n");
-		}
-	}
 	imagen = (void*)imagen1;
 	return NULL;
 }
