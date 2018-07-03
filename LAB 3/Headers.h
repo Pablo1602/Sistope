@@ -36,12 +36,12 @@ typedef struct bmpInfoHeader
 } bmpInfoHeader;
 
 
-void datapath(int cantidadImg, int uBinarizacion, int uClasificacion, int mostrar);
+void datapath(int cantidadImg,int numeroHebras, int uBinarizacion, int uClasificacion, int mostrar);
 void iniciador(bmpFileHeader* fh, bmpInfoHeader* ih);
-unsigned char* lectura(char* nombre,bmpFileHeader* fh, bmpInfoHeader* ih);
-void gris(unsigned char* imagen, bmpInfoHeader* info);
-void escribir(bmpInfoHeader* ih, bmpFileHeader* fh, unsigned char* imagen, int nImagen);
-void binarizacion(int umbral, unsigned char* imagen, bmpInfoHeader* ih);
-void clasificacion(int umbral, unsigned char* imagen, bmpInfoHeader* ih, int mostrar);
+void *lectura(void* imgdata, void* nombreEntrada, void* fh, void* ih);
+void *gris(unsigned char* imagen, bmpInfoHeader* info);
+void *escribir(bmpInfoHeader* ih, bmpFileHeader* fh, unsigned char* imagen, int nImagen);
+void *binarizacion(int umbral, unsigned char* imagen, bmpInfoHeader* ih);
+void *clasificacion(int umbral, unsigned char* imagen, bmpInfoHeader* ih, int mostrar);
 
 #endif

@@ -24,17 +24,24 @@ void datapath(int cantidadImg,int numeroHebras, int uBinarizacion, int uClasific
 	pthread_t* hebras;
 	hebras = (pthread_t*)malloc(sizeof(pthread_t)*numeroHebras);
 
-
+	void** arg = (void*)malloc(sizeof(void*)*4);
+	arg[0]=(void*)imgdata;
+	arg[1]=(void*)nImagen;
+	arg[2]=(void*)fh;
+	arg[3]=(void*)ih;
+	
 	for (i = 1; i <= cantidadImg; ++i){
 
 		pthread_barrier_init(&mybarrier, NULL, numeroHebras+1);
 		sprintf(nImagen, "imagen_%d.bmp",i);
 		// Hebra 1 tiene que leer la imagen
-		pthread_create(&hebras[0], NULL, lectura, (void*)&imgdata, (void*)&nImagen , (void*)&fh, (void*)&ih,)
+
+		pthread_create(&hebras[0], NULL, (void*)lectura, (void*)&arg);
 		//n Hebras tienen que pasar a gris imagen y binarizar.
 		
 		//esperar hebras
 		pthread_barrier_wait(&mybarrier);
+		
 		gris(imgdata, ih);
 		
 		//esperar hebras
@@ -67,9 +74,11 @@ void datapath(int cantidadImg,int numeroHebras, int uBinarizacion, int uClasific
 // Funcion: Se encarga de leer los archivos de imagen y guardarlo en variables correspondientes
 // Entrada: Nombre de archivo a leer, puntero estructura FileHeader y InfoHeader vacios
 // Salida: puntero estructura FileHeader y InfoHeader vacios y imagen leida
-void lectura(void* imgdata, void* nombreEntrada,bmpFileHeader* fh, bmpInfoHeader* ih){
-	char** img = imgdata;
+void *lectura(void* imgdata, void* nombreEntrada, void* fh, void* ih){
 	char* nombre = nombreEntrada;
+	bmpFileHeader *fh1 = (bmpFileHeader *)fh;
+	bmpInfoHeader *ih1 = (bmpInfoHeader *)ih;
+	unsigned char *imgdata1 = (unsigned char *)imgdata;	
 	// agregar casteos
 	int imagen, numbytes, x, y;
 	char* bm = (char*)malloc(sizeof(char)*2);
@@ -77,32 +86,31 @@ void lectura(void* imgdata, void* nombreEntrada,bmpFileHeader* fh, bmpInfoHeader
   	imagen = open(nombre, O_RDONLY);	
   
 	numbytes = read(imagen, bm, sizeof(char)*2);
-	numbytes = read(imagen, fh->size, sizeof(unsigned int));
-	numbytes = read(imagen, fh->resv1, sizeof(unsigned short));
-	numbytes = read(imagen, fh->resv2, sizeof(unsigned short));
-	numbytes = read(imagen, fh->offset, sizeof(unsigned int));
-	numbytes = read(imagen, ih->headersize, sizeof(unsigned int));
-	numbytes = read(imagen, ih->width, sizeof(unsigned int));
-	numbytes = read(imagen, ih->height, sizeof(unsigned int));
-	numbytes = read(imagen, ih->planes, sizeof(unsigned short));
-	numbytes = read(imagen, ih->bpp, sizeof(unsigned short));
-	numbytes = read(imagen, ih->compress, sizeof(unsigned int));
-	numbytes = read(imagen, ih->imgsize, sizeof(unsigned int));
-	numbytes = read(imagen, ih->bpmx, sizeof(unsigned int));
-	numbytes = read(imagen, ih->bpmy, sizeof(unsigned int));
-	numbytes = read(imagen, ih->colors, sizeof(unsigned int));
-	numbytes = read(imagen, ih->imxtcolors, sizeof(unsigned int));
+	numbytes = read(imagen, fh1->size, sizeof(unsigned int));
+	numbytes = read(imagen, fh1->resv1, sizeof(unsigned short));
+	numbytes = read(imagen, fh1->resv2, sizeof(unsigned short));
+	numbytes = read(imagen, fh1->offset, sizeof(unsigned int));
+	numbytes = read(imagen, ih1->headersize, sizeof(unsigned int));
+	numbytes = read(imagen, ih1->width, sizeof(unsigned int));
+	numbytes = read(imagen, ih1->height, sizeof(unsigned int));
+	numbytes = read(imagen, ih1->planes, sizeof(unsigned short));
+	numbytes = read(imagen, ih1->bpp, sizeof(unsigned short));
+	numbytes = read(imagen, ih1->compress, sizeof(unsigned int));
+	numbytes = read(imagen, ih1->imgsize, sizeof(unsigned int));
+	numbytes = read(imagen, ih1->bpmx, sizeof(unsigned int));
+	numbytes = read(imagen, ih1->bpmy, sizeof(unsigned int));
+	numbytes = read(imagen, ih1->colors, sizeof(unsigned int));
+	numbytes = read(imagen, ih1->imxtcolors, sizeof(unsigned int));
 
-	imgdata = (unsigned char*)malloc(sizeof(unsigned char)*ih->imgsize[0]);   
+	imgdata1 = (unsigned char*)malloc(sizeof(unsigned char)*ih1->imgsize[0]);   
 	unsigned char* basura = (unsigned char*)malloc(sizeof(unsigned char));;
 
-	lseek(imagen,fh->offset[0],SEEK_SET);
-	for (int i = 0; i < ih->imgsize[0]; ++i){
+	lseek(imagen,fh1->offset[0],SEEK_SET);
+	for (int i = 0; i < ih1->imgsize[0]; ++i){
 		read(imagen, basura, sizeof(unsigned char));
-		imgdata[i] = basura[0];
+		imgdata1[i] = basura[0];
 	}
   	close(imagen);
-  	return;
 }
 
 // Funcion: Se encarga de asignar memoria a los punteros para guardar header de imagen con informacion de estas
@@ -133,7 +141,7 @@ void iniciador(bmpFileHeader* fh, bmpInfoHeader* ih){
 // Entrada: Imagen leida en chars y estructura InfoHeader
 // Salida: imagen convertida a escala de grises
 
-void gris(unsigned char* imagen, bmpInfoHeader* ih){
+void *gris(unsigned char* imagen, bmpInfoHeader* ih){
 	unsigned int x, y, r, g ,b, gris;
 
     for (int i = 0; i < ih->imgsize[0]; i+=4){
@@ -152,7 +160,7 @@ void gris(unsigned char* imagen, bmpInfoHeader* ih){
 // Funcion: Se encarga de convertir valores de grises de la imagen en blanco y negro segun umbral de binarizacion
 // Entrada: Imagen en escala de grises y umbral de binarizacion
 // Salida: imagen binarizada
-void binarizacion(int umbral, unsigned char* imagen, bmpInfoHeader* ih){
+void *binarizacion(int umbral, unsigned char* imagen, bmpInfoHeader* ih){
 	for (int i = 0; i < ih->imgsize[0]; i+=4){
 		if(imagen[i] > umbral)
 			imagen[i] = 255;
@@ -176,7 +184,7 @@ void binarizacion(int umbral, unsigned char* imagen, bmpInfoHeader* ih){
 // Funcion: Se encarga de contar pixeles blancos y negros de la imagen y calcular % de negro de la imagen, decidiendo si pasa el uimbral de clasificacion
 // Entrada: Imagen binarizada y uimbral de clasificacion
 // Salida: resultado uimbral de clasificacion
-void clasificacion(int umbral, unsigned char* imagen, bmpInfoHeader* ih, int mostrar){
+void *clasificacion(int umbral, unsigned char* imagen, bmpInfoHeader* ih, int mostrar){
 	float blanco = 0, negro = 0, porcentaje = 0;
 	for (int i = 0; i < ih->imgsize[0]; i+=4){
 		if(imagen[i] == 255){
@@ -216,7 +224,7 @@ void clasificacion(int umbral, unsigned char* imagen, bmpInfoHeader* ih, int mos
 // Funcion: Se encarga de escribir la imagen binarizada
 // Entrada: Imagen binarizada, numerod de imagen y cabeceras
 // Salida: Imagen en formato .bmp
-void escribir(bmpInfoHeader* ih, bmpFileHeader* fh, unsigned char* imagen, int nImagen){
+void *escribir(bmpInfoHeader* ih, bmpFileHeader* fh, unsigned char* imagen, int nImagen){
 	int escribir, numbytes, x, y;
 	unsigned char* basura = (unsigned char*)malloc(sizeof(unsigned char));;
 	char* bm = "BM";
