@@ -13,7 +13,6 @@
 
 typedef struct bmpFileHeader
 {
-  
   unsigned int* size;        
   unsigned short* resv1;     
   unsigned short* resv2;     
@@ -35,16 +34,24 @@ typedef struct bmpInfoHeader
   unsigned int* imxtcolors;      
 } bmpInfoHeader;
 
+typedef struct imagenCompleta
+{
+  bmpInfoHeader* info;
+  bmpFileHeader* file;
+  unsigned char* imgdata;
+  int* numero;
+}img;
 
 pthread_mutex_t lock;
 float negro, blanco, porcentaje;
 
 void datapath(int cantidadImg,int numeroHebras, int uBinarizacion, int uClasificacion, int mostrar);
 void iniciador(bmpFileHeader* fh, bmpInfoHeader* ih);
-void *lectura(void* imgdata, void* nombreEntrada, void* fh, void* ih);
+// void *lectura(void* imgdata, void* nombreEntrada, void* fh, void* ih);
+void *lectura(void *arg);
 void *gris(void* imagen, void* ih);
 void *binarizacion(void* umbral, void* imagen, void* ih);
 void *clasificacion(void* imagen, void* ih);
 void *escribir(bmpInfoHeader* ih, bmpFileHeader* fh, unsigned char* imagen, int nImagen);
-
-#endif
+pthread_barrier_t mybarrier;
+#endif  
