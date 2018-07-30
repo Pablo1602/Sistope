@@ -52,6 +52,7 @@ void datapath(int cantidadImg,int numeroHebras, int uBinarizacion, int uClasific
 		// Hebra 1 tiene que leer la imagen
 		pthread_create(&hebras[0], NULL, (void*)lectura, (void*)contenidoImagen);
     	pthread_join(hebras[0], NULL);
+    	printf("Pase lectura\n");
 
 		//n Hebras tienen que pasar a gris imagen.
 
@@ -63,6 +64,8 @@ void datapath(int cantidadImg,int numeroHebras, int uBinarizacion, int uClasific
     	for (j=0; j<numeroHebras; j++){
     		pthread_join(hebras[j], NULL);
     	}
+    	printf("Pase gris\n");
+
 
 		//n Hebras tienen que binarizar imagen .
 		for (j=0; j<numeroHebras; j++) {
@@ -71,8 +74,11 @@ void datapath(int cantidadImg,int numeroHebras, int uBinarizacion, int uClasific
 			pthread_create(&hebras[0], NULL, (void*)binarizacion, (void*)contenidoImagen);
   		}
 		for (j=0; j<numeroHebras; j++) {
+  			printf("hebras %d de %d\n",j,numeroHebras-1);
     		pthread_join(hebras[j], NULL);
   		}
+  		printf("Pase binarizacion\n");
+
 		//hebras deben contar los negros que existen en la imagen luego de binarizarla 
 		if (mostrar == 1){
 			printf("| 	   %d        |",i);
@@ -86,7 +92,6 @@ void datapath(int cantidadImg,int numeroHebras, int uBinarizacion, int uClasific
 		for (j=0; j<numeroHebras; j++) {
     		pthread_join(hebras[j], NULL);
   		}
-
 		if(porcentaje >= uClasificacion){
 			if (mostrar == 1){
 				printf("    	  Yes		|\n");
@@ -94,19 +99,16 @@ void datapath(int cantidadImg,int numeroHebras, int uBinarizacion, int uClasific
 		}
 		else{
 			if (mostrar == 1){
-				printf(" 	     No 		|\n");
+				printf(" 	      No 	|\n");
 			}
 		}
-	
+		
+		printf("Pase clasificacion\n");	
 		// esto debe hacerlo main, no proceso
 		escribir(contenidoImagen->info, contenidoImagen->file, contenidoImagen->imgdata, i); 
  		
- 		/*for (j=0; j<numeroHebras; j++) {
-    		pthread_join(hebras[j], NULL);
-  		}*/
-		//pthread_barrier_destroy(&mybarrier);
-		//pthread_mutex_destroy(&lock);
-		printf("TERMINE :)\n");
+		pthread_barrier_destroy(&mybarrier);
+		pthread_mutex_destroy(&lock);
 	}
 	
 }
@@ -203,11 +205,17 @@ void *gris(void* contenido){
 	unsigned int x, y, r, g ,b, gris, inicio, fin, npixeles;
 	npixeles = contenidoImagen->info->imgsize[0]/4;
 	inicio = npixeles/contenidoImagen->nhebra[0]*contenidoImagen->hebra[0];
-	pthread_mutex_unlock(&lock);
 	fin = inicio + npixeles/contenidoImagen->nhebra[0];
+	if(inicio > npixeles){
+		inicio = npixeles;
+	}		
+	if(contenidoImagen->nhebra[0] == (contenidoImagen->hebra[0] + 1)){
+		fin = npixeles;
+	}
 	if(fin > npixeles){
 		fin = npixeles;
 	}
+	pthread_mutex_unlock(&lock);
     for (int i = inicio; i < fin; i++){
       	b=(contenidoImagen->imgdata[i*4]);
       	g=(contenidoImagen->imgdata[i*4+1]);
@@ -237,11 +245,18 @@ void *binarizacion(void* contenido){
 	
 	npixeles = contenidoImagen->info->imgsize[0]/4;
 	inicio = npixeles/contenidoImagen->nhebra[0]*contenidoImagen->hebra[0];
-	pthread_mutex_unlock(&lock);
 	fin = inicio + npixeles/contenidoImagen->nhebra[0];
+	if(inicio > npixeles){
+		inicio = npixeles;
+	}	
+	if(contenidoImagen->nhebra[0] == (contenidoImagen->hebra[0] + 1)){
+		fin = npixeles;
+	}
 	if(fin > npixeles){
 		fin = npixeles;
 	}
+	pthread_mutex_unlock(&lock);
+
 	for (int i = inicio; i < fin; i++){
 		if(contenidoImagen->imgdata[i*4] > contenidoImagen->binarizacion[0])
 			contenidoImagen->imgdata[i*4] = 255;
@@ -279,12 +294,19 @@ void *clasificacion(void* contenido){
 
 	npixeles = contenidoImagen->info->imgsize[0]/4;
 	inicio = npixeles/contenidoImagen->nhebra[0]*contenidoImagen->hebra[0];
-	pthread_mutex_unlock(&lock);
 	fin = inicio + npixeles/contenidoImagen->nhebra[0];
-	//Seccion critica
+	if(inicio > npixeles){
+		inicio = npixeles;
+	}	
+	if(contenidoImagen->nhebra[0] == (contenidoImagen->hebra[0] + 1)){
+		fin = npixeles;
+	}
 	if(fin > npixeles){
 		fin = npixeles;
 	}
+	//printf("\ninicio %d fin %d npixeles %d hebra %d de %d\n", inicio, fin, npixeles, contenidoImagen->hebra[0], contenidoImagen->nhebra[0]);
+	pthread_mutex_unlock(&lock);
+	//Seccion critica
 	pthread_mutex_lock(&lock);
 	for (int i = inicio; i < fin; i++){
 		if(contenidoImagen->imgdata[i*4] == 255){
@@ -310,7 +332,7 @@ void *clasificacion(void* contenido){
 	pthread_mutex_unlock(&lock);
 	
 	contenido = (void*)contenidoImagen->imgdata;
-	//pthread_barrier_wait(&mybarrier);
+	pthread_barrier_wait(&mybarrier);
 	return NULL;
 }
 
