@@ -42,6 +42,8 @@ typedef struct imagenCompleta
   int* numero;
   int* clasificacion;
   int* binarizacion;
+  int* hebra;
+  int* nhebra;
 }img;
 
 pthread_mutex_t lock;
@@ -50,7 +52,7 @@ float negro, blanco, porcentaje;
 
 void datapath(int cantidadImg,int numeroHebras, int uBinarizacion, int uClasificacion, int mostrar);
 void iniciador(bmpFileHeader* fh, bmpInfoHeader* ih);
-img* iniciadorImagen(img* contenido, int* num, int* binarizacion, int* clasificacion);
+img* iniciadorImagen(img* contenido, int* num, int* binarizacion, int* clasificacion, int* nhebra);
 void *lectura(void* contenido);
 void *gris(void* contenido);
 void *binarizacion(void* contenido);
