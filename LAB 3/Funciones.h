@@ -52,7 +52,6 @@ void datapath(int cantidadImg,int numeroHebras, int uBinarizacion, int uClasific
 		// Hebra 1 tiene que leer la imagen
 		pthread_create(&hebras[0], NULL, (void*)lectura, (void*)contenidoImagen);
     	pthread_join(hebras[0], NULL);
-    	printf("Pase lectura\n");
 
 		//n Hebras tienen que pasar a gris imagen.
 
@@ -64,9 +63,6 @@ void datapath(int cantidadImg,int numeroHebras, int uBinarizacion, int uClasific
     	for (j=0; j<numeroHebras; j++){
     		pthread_join(hebras[j], NULL);
     	}
-    	printf("Pase gris\n");
-
-
 		//n Hebras tienen que binarizar imagen .
 		for (j=0; j<numeroHebras; j++) {
 			pthread_mutex_lock(&lock);
@@ -107,7 +103,6 @@ void datapath(int cantidadImg,int numeroHebras, int uBinarizacion, int uClasific
   		}*/
 		//pthread_barrier_destroy(&mybarrier);
 		//pthread_mutex_destroy(&lock);
-		printf("TERMINE :)\n");
 	}
 	
 }
