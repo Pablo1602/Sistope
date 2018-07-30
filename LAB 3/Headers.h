@@ -40,18 +40,20 @@ typedef struct imagenCompleta
   bmpFileHeader* file;
   unsigned char* imgdata;
   int* numero;
+  int* clasificacion;
+  int* binarizacion;
 }img;
 
 pthread_mutex_t lock;
+pthread_barrier_t mybarrier;
 float negro, blanco, porcentaje;
 
 void datapath(int cantidadImg,int numeroHebras, int uBinarizacion, int uClasificacion, int mostrar);
 void iniciador(bmpFileHeader* fh, bmpInfoHeader* ih);
-// void *lectura(void* imgdata, void* nombreEntrada, void* fh, void* ih);
-void *lectura(void *arg);
-void *gris(void* imagen, void* ih);
-void *binarizacion(void* umbral, void* imagen, void* ih);
-void *clasificacion(void* imagen, void* ih);
+img* iniciadorImagen(img* contenido, int* num, int* binarizacion, int* clasificacion);
+void *lectura(void* contenido);
+void *gris(void* contenido);
+void *binarizacion(void* contenido);
+void *clasificacion(void* contenido);
 void *escribir(bmpInfoHeader* ih, bmpFileHeader* fh, unsigned char* imagen, int nImagen);
-pthread_barrier_t mybarrier;
 #endif  
