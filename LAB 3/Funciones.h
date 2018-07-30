@@ -37,7 +37,7 @@ void datapath(int cantidadImg,int numeroHebras, int uBinarizacion, int uClasific
 	pthread_t* hebras;
 	hebras = (pthread_t*)malloc(sizeof(pthread_t)*numeroHebras);
 	pthread_mutex_init(&lock, NULL);
-	check = pthread_barrier_init(&mybarrier, NULL, numeroHebras );
+	check = pthread_barrier_init(&mybarrier, NULL, numeroHebras);
 	if(check){
 		fprintf(stderr, "pthread_barrier_init: %s\n", strerror(check));
         exit(1);
@@ -72,18 +72,16 @@ void datapath(int cantidadImg,int numeroHebras, int uBinarizacion, int uClasific
 			pthread_mutex_lock(&lock);
 			contenidoImagen->hebra[0]=j;
 			pthread_create(&hebras[0], NULL, (void*)binarizacion, (void*)contenidoImagen);
-  		}
-		for (j=0; j<numeroHebras; j++) {
-  			printf("hebras %d de %d\n",j,numeroHebras-1);
-    		pthread_join(hebras[j], NULL);
-  		}
-  		printf("Pase binarizacion\n");
-
+  		
+		}
+		// for (j=0; j<numeroHebras; j++) {
+		// 	printf("llega hebra %d\n", j );
+  //   		pthread_join(hebras[j], NULL);
+  // 		}
 		//hebras deben contar los negros que existen en la imagen luego de binarizarla 
 		if (mostrar == 1){
 			printf("| 	   %d        |",i);
 		}
-
 		for (j=0; j<numeroHebras; j++) {
 			pthread_mutex_lock(&lock);
 			contenidoImagen->hebra[0]=j;
@@ -95,20 +93,21 @@ void datapath(int cantidadImg,int numeroHebras, int uBinarizacion, int uClasific
 		if(porcentaje >= uClasificacion){
 			if (mostrar == 1){
 				printf("    	  Yes		|\n");
-			}
-		}
-		else{
+		}}else{
 			if (mostrar == 1){
 				printf(" 	      No 	|\n");
 			}
 		}
-		
-		printf("Pase clasificacion\n");	
+	
 		// esto debe hacerlo main, no proceso
 		escribir(contenidoImagen->info, contenidoImagen->file, contenidoImagen->imgdata, i); 
  		
-		pthread_barrier_destroy(&mybarrier);
-		pthread_mutex_destroy(&lock);
+ 		/*for (j=0; j<numeroHebras; j++) {
+    		pthread_join(hebras[j], NULL);
+  		}*/
+		//pthread_barrier_destroy(&mybarrier);
+		//pthread_mutex_destroy(&lock);
+		printf("TERMINE :)\n");
 	}
 	
 }
