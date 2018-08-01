@@ -3,6 +3,10 @@
 #include "Headers.h"
 
 
+// Funcion: Se encarga de inicializar la estructura que contiene datos relevantes para las hebras y la imagen junto su información
+// Entrada: Estructura primaria, numero de la imagen, umbral de binarizacion, umbral de clasificacion y cantidad de hebras.
+// Salida: Puntero a la estructura primaria con la inicializacion realizada.
+
 img* iniciadorImagen(img* contenido, int* num, int* binarizacion, int* clasificacion, int* nhebra){
 	contenido = (img*)malloc(sizeof(img));
 	contenido->file =(bmpFileHeader*)malloc(sizeof(bmpFileHeader));
@@ -54,7 +58,6 @@ void datapath(int cantidadImg,int numeroHebras, int uBinarizacion, int uClasific
     	pthread_join(hebras[0], NULL);
 
 		//n Hebras tienen que pasar a gris imagen.
-
 		for (j=0; j<numeroHebras; j++) {
 			pthread_mutex_lock(&lock);
 			contenidoImagen->hebra[0]=j;
@@ -63,6 +66,7 @@ void datapath(int cantidadImg,int numeroHebras, int uBinarizacion, int uClasific
     	for (j=0; j<numeroHebras; j++){
     		pthread_join(hebras[j], NULL);
     	}
+
 		//n Hebras tienen que binarizar imagen .
 		for (j=0; j<numeroHebras; j++) {
 			pthread_mutex_lock(&lock);
@@ -70,13 +74,14 @@ void datapath(int cantidadImg,int numeroHebras, int uBinarizacion, int uClasific
 			pthread_create(&hebras[0], NULL, (void*)binarizacion, (void*)contenidoImagen);
   		
 		}
-		// for (j=0; j<numeroHebras; j++) {
-		// 	printf("llega hebra %d\n", j );
-  //   		pthread_join(hebras[j], NULL);
-  // 		}
+	//	for (j=0; j<numeroHebras; j++) {
+	// 		printf("llega hebra %d\n", j );
+  	//		pthread_join(hebras[j], NULL);
+  	//	}
+
 		//hebras deben contar los negros que existen en la imagen luego de binarizarla 
 		if (mostrar == 1){
-			printf("| 	   %d        |",i);
+			printf("| 	    %d           |",i);
 		}
 		for (j=0; j<numeroHebras; j++) {
 			pthread_mutex_lock(&lock);
@@ -88,23 +93,20 @@ void datapath(int cantidadImg,int numeroHebras, int uBinarizacion, int uClasific
   		}
 		if(porcentaje >= uClasificacion){
 			if (mostrar == 1){
-				printf("    	  Yes		|\n");
+				printf("           Yes         |\n");
 		}}else{
 			if (mostrar == 1){
-				printf(" 	      No 	|\n");
+				printf(" 	    No   	|\n");
 			}
 		}
-	
-		// esto debe hacerlo main, no proceso
-		escribir(contenidoImagen->info, contenidoImagen->file, contenidoImagen->imgdata, i); 
- 		
- 		/*for (j=0; j<numeroHebras; j++) {
-    		pthread_join(hebras[j], NULL);
-  		}*/
-		//pthread_barrier_destroy(&mybarrier);
-		//pthread_mutex_destroy(&lock);
+	// esto debe hacerlo main, no proceso
+	escribir(contenidoImagen->info, contenidoImagen->file, contenidoImagen->imgdata, i); 
+	//pthread_barrier_destroy(&mybarrier);
+	//pthread_mutex_destroy(&lock);
 	}
-	
+	if (mostrar == 1){
+		printf("-------------------------------------------------\n");
+	}
 }
 
 // Funcion: Se encarga de leer los archivos de imagen y guardarlo en variables correspondientes
@@ -228,6 +230,7 @@ void *gris(void* contenido){
 // Funcion: Se encarga de convertir valores de grises de la imagen en blanco y negro segun umbral de binarizacion
 // Entrada: Imagen en escala de grises y umbral de binarizacion
 // Salida: imagen binarizada
+
 void *binarizacion(void* contenido){
 	img* contenidoImagen = (img*)contenido;
 	contenidoImagen->info = (bmpInfoHeader*)contenidoImagen->info;
@@ -277,6 +280,7 @@ void *binarizacion(void* contenido){
 // Funcion: Se encarga de contar pixeles blancos y negros de la imagen y calcular % de negro de la imagen, decidiendo si pasa el uimbral de clasificacion
 // Entrada: Imagen binarizada y uimbral de clasificacion
 // Salida: resultado uimbral de clasificacion
+
 void *clasificacion(void* contenido){
 	img* contenidoImagen = (img*)contenido;
 	contenidoImagen->info = (bmpInfoHeader*)contenidoImagen->info;
@@ -298,7 +302,6 @@ void *clasificacion(void* contenido){
 	if(fin > npixeles){
 		fin = npixeles;
 	}
-	//printf("\ninicio %d fin %d npixeles %d hebra %d de %d\n", inicio, fin, npixeles, contenidoImagen->hebra[0], contenidoImagen->nhebra[0]);
 	pthread_mutex_unlock(&lock);
 	//Seccion critica
 	pthread_mutex_lock(&lock);
@@ -324,8 +327,9 @@ void *clasificacion(void* contenido){
 	}
 	porcentaje = (negro / (blanco + negro))*100;
 	pthread_mutex_unlock(&lock);
-	
-	contenido = (void*)contenidoImagen->imgdata;
+	//Fin de la seccion critica
+
+	//contenido = (void*)contenidoImagen->imgdata;
 	pthread_barrier_wait(&mybarrier);
 	return NULL;
 }
