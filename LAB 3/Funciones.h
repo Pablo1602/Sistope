@@ -74,15 +74,11 @@ void datapath(int cantidadImg,int numeroHebras, int uBinarizacion, int uClasific
 			pthread_create(&hebras[0], NULL, (void*)binarizacion, (void*)contenidoImagen);
   		
 		}
-	//	for (j=0; j<numeroHebras; j++) {
-	// 		printf("llega hebra %d\n", j );
-  	//		pthread_join(hebras[j], NULL);
-  	//	}
 
-		//hebras deben contar los negros que existen en la imagen luego de binarizarla 
 		if (mostrar == 1){
 			printf("| 	    %d           |",i);
 		}
+		//n hebras deben contar los negros que existen en la imagen
 		for (j=0; j<numeroHebras; j++) {
 			pthread_mutex_lock(&lock);
 			contenidoImagen->hebra[0]=j;
@@ -99,10 +95,8 @@ void datapath(int cantidadImg,int numeroHebras, int uBinarizacion, int uClasific
 				printf(" 	    No   	|\n");
 			}
 		}
-	// esto debe hacerlo main, no proceso
-	escribir(contenidoImagen->info, contenidoImagen->file, contenidoImagen->imgdata, i); 
-	//pthread_barrier_destroy(&mybarrier);
-	//pthread_mutex_destroy(&lock);
+		// main escribe en archivo
+		escribir(contenidoImagen->info, contenidoImagen->file, contenidoImagen->imgdata, i); 
 	}
 	if (mostrar == 1){
 		printf("-------------------------------------------------\n");
